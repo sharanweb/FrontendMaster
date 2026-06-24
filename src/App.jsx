@@ -25,14 +25,14 @@ export default function App() {
   const [addTopicForModule, setAddTopicForModule] = useState(null) // moduleSlug
   const [confirmModal, setConfirmModal] = useState(null) // { message, onConfirm }
 
-  const { modules, loading: modulesLoading } = useModules()
+  const { modules, loading: modulesLoading } = useModules(!!user)
   const [allModules, setAllModules] = useState([])
   // topics keyed by moduleSlug
   const [topicsMap, setTopicsMap] = useState({})
   // questions keyed by topicSlug
   const [questionsMap, setQuestionsMap] = useState({})
 
-  const { progressMap, streak, toggleComplete, markSeen } = useApiProgress(activeModule)
+  const { progressMap, streak, toggleComplete, markSeen } = useApiProgress(activeModule, !!user)
   const { customAnswers, saveCustomAnswer, deleteCustomAnswer, bulkLoad } = useCustomAnswers()
 
   const isAdmin = user?.role === 'admin'
@@ -178,12 +178,7 @@ export default function App() {
 
       <main className="main-content">
         <div className="topbar">
-          <div className="topbar-breadcrumb">
-            {activeView === 'dashboard' && 'Dashboard'}
-            {activeView === 'leaderboard' && 'Leaderboard'}
-            {activeView === 'admin' && 'Admin Panel'}
-            {activeView === 'topic' && currentTopic?.name}
-          </div>
+          <div className="topbar-breadcrumb" />
           <div className="topbar-right">
             <div className="streak-badge">🔥 {streak.current} day streak</div>
             <div className="progress-summary">{overall.completed}/{overall.total} done</div>

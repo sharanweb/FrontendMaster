@@ -1,13 +1,13 @@
 import { useState, useEffect, useCallback } from 'react'
 import { api } from '../services/api'
 
-export function useApiProgress(moduleSlug) {
+export function useApiProgress(moduleSlug, enabled = true) {
   // progressMap: { [questionId]: { completed, seenAt, completedAt } }
   const [progressMap, setProgressMap] = useState({})
   const [streak, setStreak] = useState({ current: 0, longest: 0 })
 
   useEffect(() => {
-    if (!moduleSlug) return
+    if (!moduleSlug || !enabled) return
     Promise.all([
       api.getProgress(moduleSlug),
       api.getStreak()
@@ -17,7 +17,7 @@ export function useApiProgress(moduleSlug) {
       setProgressMap(map)
       setStreak(sd.streak || { current: 0, longest: 0 })
     }).catch(() => {})
-  }, [moduleSlug])
+  }, [moduleSlug, enabled])
 
   const toggleComplete = useCallback(async (questionId) => {
     try {

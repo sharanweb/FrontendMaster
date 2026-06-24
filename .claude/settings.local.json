@@ -4,7 +4,8 @@
       "PowerShell(node --version 2>&1)",
       "PowerShell(npm --version 2>&1)",
       "PowerShell(cd \"C:\\\\Users\\\\sdooganvar\\\\Desktop\\\\jsApp\"; npm create vite@latest . -- --template react 2>&1; Write-Host \"EXIT: $LASTEXITCODE\")",
-      "mcp__Claude_Preview__preview_start"
+      "mcp__Claude_Preview__preview_start",
+      "PowerShell(cd \"C:\\\\Users\\\\sdooganvar\\\\Desktop\\\\jsApp\" ; $env:VITE_API_URL = \"https://frontendmaster.onrender.com/api\" ; npm run deploy 2>&1 | Select-Object -Last 5)"
     ]
   }
 }
