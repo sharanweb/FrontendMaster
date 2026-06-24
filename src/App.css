@@ -177,6 +177,55 @@ code, pre { font-family: var(--font-mono); }
   color: var(--text-tertiary);
 }
 
+/* ─── App Footer ─────────────────────────────────────────────────── */
+.app-footer {
+  flex-shrink: 0;
+  height: 40px;
+  border-top: 1px solid var(--border);
+  background: var(--bg-sidebar);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  gap: 16px;
+}
+.footer-made {
+  font-size: 13px;
+  color: var(--text-tertiary);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.footer-heart {
+  color: #e53e3e;
+  font-size: 15px;
+  line-height: 1;
+  animation: heartbeat 1.4s ease infinite;
+}
+@keyframes heartbeat {
+  0%, 100% { transform: scale(1); }
+  14% { transform: scale(1.25); }
+  28% { transform: scale(1); }
+  42% { transform: scale(1.15); }
+  56% { transform: scale(1); }
+}
+.footer-links {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.footer-links a {
+  color: var(--text-tertiary);
+  display: flex;
+  align-items: center;
+  transition: color 0.15s, transform 0.15s;
+  text-decoration: none;
+}
+.footer-links a:hover {
+  color: var(--accent-blue);
+  transform: translateY(-2px);
+}
+
 /* ─── Main ───────────────────────────────────────────────────────── */
 .main-content {
   flex: 1;

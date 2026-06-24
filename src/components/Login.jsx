@@ -24,8 +24,8 @@ export default function Login() {
   return (
     <div className="login-overlay">
       <div className="login-card">
-        <div className="login-logo">JS</div>
-        <h1 className="login-title">JS Mastery</h1>
+        <div className="login-logo">⚡</div>
+        <h1 className="login-title">FrontendMaster</h1>
         <p className="login-sub">Interview Prep — Sign in to continue</p>
 
         <form className="login-form" onSubmit={handleSubmit}>
