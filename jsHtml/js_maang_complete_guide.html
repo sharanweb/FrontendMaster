@@ -1,0 +1,1079 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans)}
+.w{padding:1.5rem 0}
+.topbar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:1rem}
+.st{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:7px 14px;font-size:12px;color:var(--color-text-secondary)}
+.st b{display:block;font-size:15px;font-weight:500;color:var(--color-text-primary)}
+.sbar-w{height:3px;background:var(--color-border-tertiary);border-radius:2px;margin-bottom:1.2rem}
+.sbar-f{height:100%;background:#534AB7;border-radius:2px;transition:width .4s}
+.search-row{display:flex;gap:8px;margin-bottom:1rem}
+.search-row input{flex:1;padding:8px 12px;border-radius:var(--border-radius-md);border:.5px solid var(--color-border-secondary);background:var(--color-background-secondary);color:var(--color-text-primary);font-size:13px;font-family:var(--font-sans)}
+.type-toggle{display:flex;gap:6px;margin-bottom:1rem;flex-wrap:wrap}
+.tpill{padding:5px 13px;border-radius:16px;border:.5px solid var(--color-border-secondary);background:var(--color-background-secondary);color:var(--color-text-secondary);font-size:12px;cursor:pointer}
+.tpill.on{background:var(--color-background-primary);color:var(--color-text-primary);border-color:var(--color-border-primary);font-weight:500}
+.cats{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:1.2rem}
+.pill{padding:4px 11px;border-radius:14px;border:.5px solid var(--color-border-secondary);background:var(--color-background-secondary);color:var(--color-text-secondary);font-size:12px;cursor:pointer;white-space:nowrap}
+.pill.on{background:var(--color-background-primary);color:var(--color-text-primary);border-color:var(--color-border-primary);font-weight:500}
+.qcard{background:var(--color-background-primary);border:.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);margin-bottom:10px;overflow:hidden}
+.qcard.type-output{border-left:3px solid #1D9E75}
+.qcard.type-theory{border-left:3px solid #534AB7}
+.qh{padding:13px 15px;display:flex;gap:10px;align-items:flex-start;cursor:pointer}
+.qh:hover{background:var(--color-background-secondary)}
+.qnum{font-size:11px;font-weight:500;color:var(--color-text-tertiary);min-width:26px;padding-top:2px}
+.qr{flex:1;min-width:0}
+.tags{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:6px}
+.tag{font-size:10px;font-weight:500;padding:2px 8px;border-radius:8px}
+.tc{background:#E6F1FB;color:#0C447C}
+.tt-theory{background:#EEEDFE;color:#3C3489}
+.tt-output{background:#E1F5EE;color:#085041}
+.tl1{background:#EAF3DE;color:#3B6D11}
+.tl2{background:#FAEEDA;color:#854F0B}
+.tl3{background:#FAECE7;color:#993C1D}
+.tl4{background:#EEEDFE;color:#3C3489}
+.qtext{font-size:13px;color:var(--color-text-primary);font-weight:500;line-height:1.5}
+.qtog{font-size:16px;color:var(--color-text-tertiary);min-width:16px}
+.co-row{display:flex;gap:4px;flex-wrap:wrap;margin-top:6px}
+.co{font-size:10px;padding:2px 7px;border-radius:6px;background:var(--color-background-tertiary);color:var(--color-text-secondary);border:.5px solid var(--color-border-tertiary)}
+.ans{display:none;padding:0 15px 14px 52px}
+.ans.open{display:block}
+.ans-box{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:13px 14px;font-size:13px;color:var(--color-text-secondary);line-height:1.75}
+.ans-box b{color:var(--color-text-primary);font-weight:500}
+.code{background:var(--color-background-tertiary);border:.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:10px 13px;font-family:var(--font-mono);font-size:11.5px;color:var(--color-text-primary);white-space:pre;overflow-x:auto;line-height:1.65;margin:10px 0}
+.tip{border-left:3px solid #534AB7;border-radius:0;background:#EEEDFE;padding:8px 11px;margin:10px 0;font-size:12px;color:#3C3489;line-height:1.5}
+.output-ans{background:#E1F5EE;border:.5px solid #5DCAA5;border-radius:var(--border-radius-md);padding:8px 12px;font-family:var(--font-mono);font-size:12px;color:#085041;margin:8px 0;line-height:1.7}
+.fqs{margin-top:10px}
+.fq-label{font-size:11px;font-weight:500;color:var(--color-text-tertiary);margin-bottom:4px}
+.fq{display:inline-block;font-size:12px;background:var(--color-background-primary);border:.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);padding:4px 10px;margin:2px 3px 0 0;color:var(--color-text-secondary);cursor:pointer}
+.fq:hover{border-color:var(--color-border-primary);color:var(--color-text-primary)}
+.empty{padding:2rem;text-align:center;color:var(--color-text-tertiary);font-size:13px}
+.rbtn{padding:6px 14px;border-radius:var(--border-radius-md);border:.5px solid var(--color-border-secondary);background:var(--color-background-secondary);color:var(--color-text-primary);font-size:12px;cursor:pointer}
+.legend{display:flex;gap:12px;margin-bottom:1rem;flex-wrap:wrap}
+.leg{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--color-text-secondary)}
+.leg-dot{width:10px;height:10px;border-radius:50%}
+</style>
+
+<div class="w">
+<h2 class="sr-only">Complete JavaScript MAANG interview guide — theoretical and output questions across all deep topics</h2>
+
+<div class="topbar">
+  <div class="st"><b id="sTotal">0</b>Questions</div>
+  <div class="st"><b id="sTheory" style="color:#534AB7">0</b>Theory</div>
+  <div class="st"><b id="sOutput" style="color:#1D9E75">0</b>Output</div>
+  <div class="st"><b id="sOpen">0</b>Expanded</div>
+</div>
+<div class="sbar-w"><div class="sbar-f" id="sbar" style="width:0%"></div></div>
+
+<div class="search-row">
+  <input id="srch" placeholder="Search questions, topics, companies..." oninput="applyFilters()"/>
+  <button class="rbtn" onclick="document.getElementById('srch').value='';applyFilters()"><i class="ti ti-x" aria-hidden="true"></i></button>
+</div>
+
+<div class="legend">
+  <div class="leg"><div class="leg-dot" style="background:#534AB7"></div>Theory</div>
+  <div class="leg"><div class="leg-dot" style="background:#1D9E75"></div>Output</div>
+</div>
+
+<div class="type-toggle">
+  <div class="tpill on" onclick="setType('all',this)">All types</div>
+  <div class="tpill" onclick="setType('theory',this)">Theory only</div>
+  <div class="tpill" onclick="setType('output',this)">Output only</div>
+</div>
+
+<div class="cats" id="catrow"></div>
+<div id="qlist"></div>
+</div>
+
+<script>
+const Q=[
+/* ── EVENT LOOP ── */
+{cat:"Event Loop",type:"theory",level:1,co:["Amazon","Flipkart","Walmart"],
+q:"What is the JavaScript event loop? Walk through the exact order of execution.",
+a:`JS is single-threaded — one call stack. The <b>event loop</b> continuously checks: if the call stack is empty, take the next task.<br><br>
+<b>Order per tick:</b><br>
+1. Run all synchronous code (call stack)<br>
+2. Drain entire <b>microtask queue</b> (Promises, queueMicrotask, MutationObserver)<br>
+3. Run one <b>macrotask</b> (setTimeout, setInterval, I/O, UI events)<br>
+4. Drain microtask queue again<br>
+5. Render (browser only)<br>
+6. Repeat`,
+code:`console.log('A');
+setTimeout(() => console.log('B'), 0);
+Promise.resolve().then(() => console.log('C'));
+console.log('D');
+// Output: A D C B`,
+tip:"The key insight: ALL microtasks drain before ANY next macrotask. This surprises most candidates.",
+follow:["Can microtasks starve the event loop?","Where does requestAnimationFrame fit?"]},
+
+{cat:"Event Loop",type:"output",level:2,co:["Google","Meta","Stripe"],
+q:"What is the output of this event loop puzzle?",
+code:`console.log('start');
+setTimeout(() => console.log('timeout1'), 0);
+Promise.resolve()
+  .then(() => {
+    console.log('p1');
+    setTimeout(() => console.log('timeout2'), 0);
+  })
+  .then(() => console.log('p2'));
+setTimeout(() => console.log('timeout3'), 0);
+console.log('end');`,
+a:`<b>Output: start → end → p1 → p2 → timeout1 → timeout3 → timeout2</b><br><br>
+Sync runs: "start", "end".<br>
+Microtask queue drains: p1 runs (also queues timeout2), then p2 runs (chained .then).<br>
+Macrotask 1: timeout1. Macrotask 2: timeout3. Macrotask 3: timeout2 (queued last).`,
+follow:["Why does timeout2 come after timeout3?","What if p1 threw an error?"]},
+
+{cat:"Event Loop",type:"output",level:3,co:["Netflix","Atlassian"],
+q:"What does this print and why?",
+code:`async function main() {
+  console.log('1');
+  await Promise.resolve();
+  console.log('2');
+}
+console.log('3');
+main();
+console.log('4');`,
+a:`<b>Output: 3 → 1 → 4 → 2</b><br><br>
+Sync: '3' logs. main() called — '1' logs. await yields (schedules microtask), returns Promise. '4' logs.<br>
+Microtask drains: '2' logs (await resumes).<br><br>
+await essentially does: return Promise.resolve(val).then(resume). So everything after await is a microtask callback.`,
+follow:["How many microtasks does a single await create?","What if you await a non-Promise?"]},
+
+{cat:"Event Loop",type:"theory",level:3,co:["Google","Netflix"],
+q:"How does the Node.js event loop differ from the browser? What are process.nextTick and setImmediate?",
+a:`<b>Browser</b>: Sync → microtasks → one macrotask → microtasks → render → repeat.<br><br>
+<b>Node.js (libuv phases):</b><br>
+1. Timers (setTimeout/setInterval callbacks)<br>
+2. Pending callbacks (I/O errors deferred from last tick)<br>
+3. Idle / prepare (internal)<br>
+4. Poll (wait for new I/O events)<br>
+5. Check (setImmediate callbacks)<br>
+6. Close callbacks<br><br>
+<b>process.nextTick</b>: Runs BEFORE the next event loop phase — even before Promise microtasks. Highest priority.<br>
+<b>setImmediate</b>: Runs in the Check phase (after I/O). Like setTimeout(fn,0) but more predictable in I/O contexts.`,
+code:`setImmediate(() => console.log('setImmediate'));
+process.nextTick(() => console.log('nextTick'));
+Promise.resolve().then(() => console.log('promise'));
+// Output: nextTick → promise → setImmediate`,
+tip:"process.nextTick > Promise microtasks > setImmediate. This order is asked directly in Node.js interviews.",
+follow:["What is the poll phase in the Node.js event loop?","Why can process.nextTick cause starvation?"]},
+
+{cat:"Event Loop",type:"output",level:3,co:["Uber","Lyft","Stripe"],
+q:"What is the output in Node.js?",
+code:`process.nextTick(() => console.log('nextTick 1'));
+Promise.resolve().then(() => console.log('promise 1'));
+setImmediate(() => console.log('immediate'));
+process.nextTick(() => console.log('nextTick 2'));
+Promise.resolve().then(() => console.log('promise 2'));
+console.log('sync');`,
+a:`<b>Output: sync → nextTick 1 → nextTick 2 → promise 1 → promise 2 → immediate</b><br><br>
+Sync code runs first. Then the nextTick queue drains completely (both nextTicks). Then Promise microtasks drain (both promises). Then the check phase: setImmediate fires.`,
+follow:["What happens if nextTick recursively calls nextTick?","Is setImmediate deprecated in Node?"]},
+
+/* ── PROMISES & ASYNC/AWAIT ── */
+{cat:"Promises & Async",type:"theory",level:1,co:["Amazon","TCS","Wipro"],
+q:"What are the three states of a Promise? What does it mean for a Promise to be 'settled'?",
+a:`<b>Pending</b>: Initial state — neither fulfilled nor rejected.<br>
+<b>Fulfilled</b>: Operation succeeded. Value accessible via .then().<br>
+<b>Rejected</b>: Operation failed. Reason accessible via .catch().<br><br>
+<b>Settled</b> = fulfilled OR rejected. Once settled, a Promise is <b>immutable</b> — it never changes state again. Calling resolve() or reject() a second time has no effect.<br><br>
+A Promise is also called <b>resolved</b> when it is either settled itself OR locked in to follow another Promise (even if still pending).`,
+code:`const p = new Promise((resolve, reject) => {
+  resolve(1);
+  resolve(2); // silently ignored — already settled
+  reject(3);  // silently ignored
+});
+p.then(v => console.log(v)); // 1`,
+tip:"The distinction between 'settled' and 'resolved' trips up experienced developers. A resolved Promise can still be pending.",
+follow:["What is the difference between resolve and fulfill?","Can you inspect a Promise's state synchronously?"]},
+
+{cat:"Promises & Async",type:"output",level:2,co:["Google","Stripe","Twilio"],
+q:"What is the output?",
+code:`Promise.resolve(1)
+  .then(v => { console.log(v); return 2; })
+  .then(v => { console.log(v); throw new Error('oops'); })
+  .then(v => console.log('never:', v))
+  .catch(e => { console.log('caught:', e.message); return 3; })
+  .then(v => console.log('after catch:', v));`,
+a:`<b>Output: 1 → 2 → "caught: oops" → "after catch: 3"</b><br><br>
+.then(v=>2): logs 1, returns 2 (wraps in Promise.resolve(2)).<br>
+.then(v=>throw): logs 2, throws → skips next .then, caught by .catch.<br>
+.catch returns 3 → new fulfilled Promise.<br>
+.then(v=>log): logs "after catch: 3".<br><br>
+Key: .catch() itself returns a fulfilled Promise if it doesn't re-throw, allowing recovery.`,
+follow:["What if .catch also throws?","How do you re-throw inside .catch?"]},
+
+{cat:"Promises & Async",type:"output",level:2,co:["Meta","Netflix","Airbnb"],
+q:"What does this print? Explain Promise.all failure behaviour.",
+code:`const p1 = Promise.resolve('a');
+const p2 = Promise.reject('err');
+const p3 = Promise.resolve('c');
+
+Promise.all([p1, p2, p3])
+  .then(v => console.log('all:', v))
+  .catch(e => console.log('fail:', e));
+
+Promise.allSettled([p1, p2, p3])
+  .then(results => results.forEach(r => console.log(r.status)));`,
+a:`<b>Output: "fail: err" → "fulfilled" → "rejected" → "fulfilled"</b><br><br>
+Promise.all fails fast — the first rejection (p2) causes it to reject immediately with 'err'. p3 is never awaited for the result.<br><br>
+Promise.allSettled waits for ALL — logs each result's status regardless of success or failure.`,
+follow:["Does Promise.all cancel the other promises on failure?","What does Promise.any do differently?"]},
+
+{cat:"Promises & Async",type:"output",level:3,co:["Google","Shopify","Cloudflare"],
+q:"What is the output? This tests async/await and Promise resolution order.",
+code:`async function a() {
+  console.log('a start');
+  await b();
+  console.log('a end');
+}
+async function b() {
+  console.log('b start');
+  await Promise.resolve();
+  console.log('b end');
+}
+console.log('before');
+a();
+console.log('after');`,
+a:`<b>Output: before → a start → b start → after → b end → a end</b><br><br>
+Sync: 'before'. a() called: 'a start'. b() called synchronously: 'b start'. b hits await — suspends b, suspends a. 'after' logs (sync resumes).<br>
+Microtask 1: b resumes → 'b end'. b's Promise resolves → schedules a's resume.<br>
+Microtask 2: a resumes → 'a end'.`,
+tip:"Each await point adds at least one microtask hop. Two nested awaits = two microtask checkpoints.",
+follow:["How many microtasks does await Promise.resolve() add?","What is the difference between return and return await in async functions?"]},
+
+{cat:"Promises & Async",type:"theory",level:3,co:["Meta","Google","Netflix"],
+q:"Implement Promise.all, Promise.race, and Promise.any from scratch.",
+code:`// Promise.all:
+function myAll(promises) {
+  return new Promise((resolve, reject) => {
+    const results = [];
+    let count = 0;
+    if (!promises.length) return resolve([]);
+    promises.forEach((p, i) => {
+      Promise.resolve(p).then(val => {
+        results[i] = val;
+        if (++count === promises.length) resolve(results);
+      }).catch(reject); // first rejection wins
+    });
+  });
+}
+
+// Promise.race:
+function myRace(promises) {
+  return new Promise((resolve, reject) => {
+    promises.forEach(p => Promise.resolve(p).then(resolve, reject));
+  });
+}
+
+// Promise.any:
+function myAny(promises) {
+  return new Promise((resolve, reject) => {
+    const errors = [];
+    let rejCount = 0;
+    if (!promises.length) return reject(new AggregateError([],'All rejected'));
+    promises.forEach((p, i) => {
+      Promise.resolve(p)
+        .then(resolve)
+        .catch(e => {
+          errors[i] = e;
+          if (++rejCount === promises.length)
+            reject(new AggregateError(errors,'All rejected'));
+        });
+    });
+  });
+}`,
+a:`These implementations demonstrate core async patterns:<br><br>
+<b>myAll</b>: Collects results by index, resolves when all done, rejects on first failure. Preserves order despite async completion.<br>
+<b>myRace</b>: Both resolve and reject are passed — first settled Promise wins.<br>
+<b>myAny</b>: Inverse of all — resolves on first success, rejects only when all fail with AggregateError.`,
+tip:"Interviewers at Google/Meta ask candidates to implement these from scratch. The index-based result collection in myAll is the tricky part.",
+follow:["How do you implement Promise.allSettled?","How do you add cancellation support to a Promise?"]},
+
+/* ── THIS KEYWORD ── */
+{cat:"this Keyword",type:"theory",level:1,co:["Amazon","Infosys","HCL"],
+q:"Explain the four rules that determine the value of 'this' in JavaScript, and their precedence.",
+a:`<b>1. new binding</b> (highest precedence): When called with new, this = newly created object.<br>
+<b>2. Explicit binding</b>: .call(ctx), .apply(ctx), .bind(ctx) — this = ctx.<br>
+<b>3. Implicit binding</b>: Called as a method — obj.fn() — this = obj.<br>
+<b>4. Default binding</b> (lowest): Standalone function call — this = global (window) in sloppy mode, undefined in strict mode.<br><br>
+<b>Arrow functions</b> are the exception — they have no own this. They inherit this lexically from the enclosing scope at definition time. No rule above applies to them.`,
+code:`function fn() { console.log(this.x); }
+const obj = { x: 42, fn };
+
+fn();           // undefined (strict) / global.x (sloppy)
+obj.fn();       // 42 — implicit
+fn.call({x:99}); // 99 — explicit
+new fn();       // undefined — new creates {} with no x`,
+tip:"Memorise the precedence order: new > explicit > implicit > default. Interviewers test this directly.",
+follow:["What does 'new' do step by step?","Can you override explicit binding with another .call?"]},
+
+{cat:"this Keyword",type:"output",level:2,co:["Google","Meta","Microsoft"],
+q:"What does this output? Trace each value of 'this'.",
+code:`const obj = {
+  name: 'obj',
+  regular: function() { return this.name; },
+  arrow: () => this.name,
+  nested: function() {
+    const inner = () => this.name;
+    return inner();
+  }
+};
+console.log(obj.regular());
+console.log(obj.arrow());
+console.log(obj.nested());`,
+a:`<b>Output: "obj" → undefined → "obj"</b><br><br>
+regular(): called as method, this = obj → "obj".<br>
+arrow(): defined at object-literal level, this = outer (global/module) scope → undefined (or '' in browser global).<br>
+nested(): regular function, this = obj. inner is an arrow that captures this from nested's scope = obj → "obj".<br><br>
+Key: arrow inside a method inherits the method's this — a common and useful pattern.`,
+follow:["How would you fix the arrow() method to work correctly?","What if nested() was also an arrow function?"]},
+
+{cat:"this Keyword",type:"output",level:2,co:["Flipkart","Uber","Paytm"],
+q:"What prints here? Classic 'this' loss scenario.",
+code:`function Timer() {
+  this.count = 0;
+}
+Timer.prototype.start = function() {
+  setInterval(function() {
+    this.count++;
+    console.log(this.count);
+  }, 100);
+};
+
+const t = new Timer();
+t.start();`,
+a:`<b>Output: NaN (then NaN, NaN... infinitely)</b><br><br>
+setInterval's callback is called as a plain function, not as a method. this = global object (or undefined in strict). global.count is undefined. undefined++ = NaN. NaN++ = NaN.<br><br>
+Fix: arrow function (inherits this from start's context = t), or const self = this / .bind(this).`,
+follow:["What are the three ways to fix this inside setInterval?","Would strict mode change this output?"]},
+
+{cat:"this Keyword",type:"output",level:3,co:["Google","Stripe","Shopify"],
+q:"What is the output of this chained 'this' puzzle?",
+code:`function foo() {
+  console.log(this.bar);
+}
+var bar = 'global';
+const obj1 = { bar: 'obj1', foo };
+const obj2 = { bar: 'obj2', foo };
+
+obj1.foo();
+obj2.foo();
+const f = obj1.foo;
+f();
+obj1.foo.call(obj2);`,
+a:`<b>Output: "obj1" → "obj2" → "global" → "obj2"</b><br><br>
+obj1.foo(): implicit binding → this = obj1 → "obj1".<br>
+obj2.foo(): implicit binding → this = obj2 → "obj2".<br>
+f(): method extracted — default binding → this = global → "global" (var bar leaks to global).<br>
+obj1.foo.call(obj2): explicit binding overrides implicit → this = obj2 → "obj2".`,
+follow:["Why does var bar leak to global but let/const don't?","What if bar was let instead of var?"]},
+
+/* ── CALL / APPLY / BIND ── */
+{cat:"Call / Apply / Bind",type:"theory",level:1,co:["Amazon","Wipro","TCS"],
+q:"What is the difference between call(), apply(), and bind()? When would you use each?",
+a:`All three set the value of <b>this</b> explicitly, but differ in invocation:<br><br>
+<b>call(ctx, arg1, arg2, ...)</b>: Invokes immediately. Arguments passed individually.<br>
+<b>apply(ctx, [arg1, arg2])</b>: Invokes immediately. Arguments passed as an array.<br>
+<b>bind(ctx, arg1, arg2)</b>: Returns a NEW function with this permanently bound. Does not invoke. Can also partially apply arguments.<br><br>
+<b>When to use:</b><br>
+call — borrowing a method once, known argument count.<br>
+apply — borrowing a method, arguments already in array (e.g. Math.max.apply(null, arr)).<br>
+bind — callbacks, event handlers, anywhere a function needs a fixed this for later invocation.`,
+code:`function greet(greeting, punct) {
+  return greeting + ', ' + this.name + punct;
+}
+const user = { name: 'Alice' };
+
+greet.call(user, 'Hello', '!');      // "Hello, Alice!"
+greet.apply(user, ['Hi', '?']);      // "Hi, Alice?"
+const boundGreet = greet.bind(user, 'Hey');
+boundGreet('.');                     // "Hey, Alice."`,
+tip:"In modern JS, spread (...arr) mostly replaces apply. But bind is still essential for callbacks and partial application.",
+follow:["Can you call .bind() twice? Does the second one override the first?","How does bind relate to partial application?"]},
+
+{cat:"Call / Apply / Bind",type:"output",level:2,co:["Google","Meta","Atlassian"],
+q:"What is the output? Tests bind precedence and partial application.",
+code:`function add(a, b, c) {
+  return a + b + c;
+}
+const add5 = add.bind(null, 5);
+const add5and10 = add5.bind(null, 10);
+
+console.log(add5(1, 2));
+console.log(add5and10(3));
+console.log(add.bind(null, 1).bind(null, 2)(3));`,
+a:`<b>Output: 8 → 18 → 6</b><br><br>
+add5 = add with a=5 pre-filled. add5(1,2) = 5+1+2 = 8.<br>
+add5and10 = add5 with b=10 pre-filled. add5and10(3) = 5+10+3 = 18.<br>
+add.bind(null,1) pre-fills a=1. .bind(null,2) pre-fills b=2. (3) provides c=3. Result: 6.<br><br>
+Note: chained .bind() for pre-filling args works (partial application). But chaining bind to CHANGE this doesn't work — first bound this wins.`,
+follow:["Why can't you override 'this' with a second .bind()?","What is the polyfill for Function.prototype.bind?"]},
+
+{cat:"Call / Apply / Bind",type:"output",level:2,co:["Flipkart","Razorpay","Juspay"],
+q:"What prints? Classic bind vs call precedence.",
+code:`function sayHi() {
+  console.log('Hi', this.name);
+}
+const alice = { name: 'Alice' };
+const bob   = { name: 'Bob' };
+
+const boundToAlice = sayHi.bind(alice);
+boundToAlice();
+boundToAlice.call(bob);
+new boundToAlice();`,
+a:`<b>Output: "Hi Alice" → "Hi Alice" → "Hi undefined"</b><br><br>
+boundToAlice(): bound to alice → "Hi Alice".<br>
+boundToAlice.call(bob): .call tries to set this = bob, but bind is permanent — this is still alice → "Hi Alice". Bind CANNOT be overridden by call/apply.<br>
+new boundToAlice(): 'new' overrides bind (new has highest precedence). this = new object with no name → "Hi undefined".`,
+tip:"The bind-cannot-be-overridden-by-call rule is directly asked at Flipkart and Razorpay.",
+follow:["Which has higher precedence: new or bind?","What does 'new' return if the constructor returns an object?"]},
+
+{cat:"Call / Apply / Bind",type:"theory",level:2,co:["Google","Meta","Stripe"],
+q:"Implement Function.prototype.bind from scratch.",
+code:`Function.prototype.myBind = function(thisArg, ...presetArgs) {
+  const fn = this; // the original function
+
+  if (typeof fn !== 'function') throw new TypeError('Not a function');
+
+  function BoundFn(...laterArgs) {
+    const allArgs = [...presetArgs, ...laterArgs];
+    // Handle 'new' — if called with new, this is a new object
+    if (this instanceof BoundFn) {
+      return new fn(...allArgs);
+    }
+    return fn.apply(thisArg, allArgs);
+  }
+
+  // Preserve prototype chain for 'new' compatibility
+  if (fn.prototype) {
+    BoundFn.prototype = Object.create(fn.prototype);
+  }
+
+  return BoundFn;
+};
+
+function greet(greeting) {
+  return greeting + ' ' + this.name;
+}
+const hi = greet.myBind({ name: 'Alice' }, 'Hello');
+hi(); // "Hello Alice"`,
+a:`Key points in the implementation:<br><br>
+<b>Partial application</b>: presetArgs are merged with laterArgs on each call.<br>
+<b>new compatibility</b>: If BoundFn is called with new, use new fn(...) instead of fn.apply(thisArg) — new takes precedence over bind.<br>
+<b>Prototype chain</b>: BoundFn.prototype inherits from fn.prototype so instanceof works correctly.`,
+tip:"This exact question is asked at Google, Meta, and Stripe. The 'new' compatibility check is what separates good implementations from great ones.",
+follow:["How would you implement Function.prototype.call from scratch?","How would you implement Function.prototype.apply?"]},
+
+{cat:"Call / Apply / Bind",type:"output",level:3,co:["Google","Adobe","Atlassian"],
+q:"What is the output? Tests call with borrowed array methods.",
+code:`const arrayLike = { 0: 'a', 1: 'b', 2: 'c', length: 3 };
+
+const arr = Array.prototype.slice.call(arrayLike);
+console.log(Array.isArray(arr));
+console.log(arr);
+
+const upper = Array.prototype.map.call(arrayLike, x => x.toUpperCase());
+console.log(upper);`,
+a:`<b>Output: true → ["a","b","c"] → ["A","B","C"]</b><br><br>
+Array.prototype.slice.call(arrayLike): slice only needs length and numeric keys — any array-like works. Returns a real Array.<br>
+Array.prototype.map.call(arrayLike): similarly, map only needs length and numeric keys. Transforms each element.<br><br>
+This is the classic "method borrowing" pattern — using Array methods on arguments objects, NodeLists, or any array-like.`,
+follow:["How does this compare to Array.from(arrayLike)?","Why doesn't arrayLike.map() work directly?"]},
+
+{cat:"Call / Apply / Bind",type:"theory",level:3,co:["Meta","Netflix","Shopify"],
+q:"How does 'this' behave inside a bound function when used as a constructor? Why does 'new' override bind?",
+a:`When a bound function is invoked with <b>new</b>, the 'new' operator creates a fresh object and sets that as this — ignoring the bound this entirely. This is by spec (ES5 §15.3.4.5).<br><br>
+Why? Because bind is designed for normal calls. new creates a new object that should inherit from the function's prototype — using the bound thisArg instead would break the object creation semantics.<br><br>
+The internal check in a bound function: if the call context is an instanceof the bound function, use new fn() semantics. Otherwise use the bound thisArg.`,
+tip:"Knowing the spec reference (§15.3.4.5) and the internal instanceof check is an A+ answer at any top company.",
+follow:["What is [[BoundThis]] and [[BoundArguments]] in the spec?","Can you use arrow functions with new?"]},
+
+/* ── HOISTING ── */
+{cat:"Hoisting",type:"theory",level:1,co:["Infosys","HCL","Accenture"],
+q:"What gets hoisted in JavaScript and what doesn't? What is the Temporal Dead Zone?",
+a:`<b>Fully hoisted</b>: Function declarations — both declaration AND body. Callable before they appear.<br>
+<b>Partially hoisted</b>: var — declaration moved to top, initialised as undefined. Assignment stays in place.<br>
+<b>Hoisted but not initialised (TDZ)</b>: let, const, class — hoisted into scope but accessing them before declaration throws ReferenceError.<br>
+<b>Not meaningfully hoisted</b>: Function expressions and arrow functions (only the var/let container is hoisted, not the function).<br><br>
+<b>Temporal Dead Zone (TDZ)</b>: The period between the start of a block scope and the let/const declaration line. Variable exists in scope (hoisted) but is uninitialized — any access throws.`,
+code:`console.log(typeof x); // 'undefined' — var hoisted
+console.log(typeof y); // ReferenceError — let in TDZ
+var x = 1;
+let y = 2;
+
+hello(); // works — function declaration hoisted
+function hello() { console.log('hi'); }
+
+world(); // TypeError — var world is undefined, not a function
+var world = function() {};`,
+tip:"typeof with a var gives 'undefined' but typeof with a let in TDZ throws ReferenceError — a surprising but important distinction.",
+follow:["Does hoisting happen inside blocks?","Why did TC39 introduce TDZ instead of just not hoisting let?"]},
+
+{cat:"Hoisting",type:"output",level:2,co:["Amazon","Microsoft","Google"],
+q:"What is the output? Classic hoisting trap.",
+code:`var x = 1;
+function test() {
+  console.log(x);
+  var x = 2;
+  console.log(x);
+}
+test();
+console.log(x);`,
+a:`<b>Output: undefined → 2 → 1</b><br><br>
+Inside test(), the local var x is hoisted to the top of the function (not the global x). So when the first console.log runs, local x exists but is undefined (hoisted, not yet assigned).<br>
+x = 2 assigns. Second log: 2.<br>
+Outside test(): global x is still 1 — untouched by the local x inside test().`,
+follow:["What would happen with let x = 2 instead?","What is function scope vs block scope here?"]},
+
+{cat:"Hoisting",type:"output",level:3,co:["Google","Meta","Stripe"],
+q:"What does this print? Function declaration vs expression hoisting.",
+code:`console.log(typeof foo);
+console.log(typeof bar);
+console.log(foo());
+
+var foo = function() { return 'foo expression'; };
+function bar() { return 'bar declaration'; }
+
+console.log(typeof foo);
+console.log(foo());
+console.log(bar());`,
+a:`<b>Output: "function" — wait, actually:</b><br><br>
+At the top of the scope, bar (function declaration) is fully hoisted. foo (var) is hoisted as undefined — but WAIT: there's no function declaration for foo, only a var. So typeof foo = "undefined".<br>
+typeof bar = "function" (fully hoisted).<br>
+foo() → TypeError: foo is not a function (it's undefined).<br><br>
+Wait — this THROWS at line 3. Execution stops. No further output.<br><br>
+Corrected expected: "undefined" → "function" → TypeError thrown.`,
+tip:"Many candidates miss that typeof foo returns 'undefined' here because foo is a var (not a function declaration). And calling undefined() throws immediately.",
+follow:["What is the difference between a syntax error and a runtime TypeError?","Does typeof ever throw?"]},
+
+/* ── SCOPE & EXECUTION CONTEXT ── */
+{cat:"Scope & Execution",type:"theory",level:1,co:["Amazon","Flipkart","Paytm"],
+q:"What is an execution context? Describe its components and lifecycle.",
+a:`An <b>execution context</b> is an internal data structure created every time code executes. It stores everything needed to run that code.<br><br>
+<b>Components:</b><br>
+1. <b>Variable Environment</b>: Stores var bindings and function declarations (with hoisting).<br>
+2. <b>Lexical Environment</b>: Stores let/const. Has outer reference → parent environment (forms scope chain).<br>
+3. <b>this Binding</b>: The value of this in this context.<br><br>
+<b>Lifecycle:</b><br>
+Phase 1 — Creation: Variables/functions are set up (hoisting happens here).<br>
+Phase 2 — Execution: Code runs line by line.<br><br>
+Types: Global (1 total), Function (1 per call), Eval.`,
+tip:"The two-phase model (creation then execution) is the internal reason hoisting exists. Mentioning this impresses interviewers.",
+follow:["What is the outer environment reference?","How does the scope chain form from execution contexts?"]},
+
+{cat:"Scope & Execution",type:"output",level:2,co:["Google","Meta"],
+q:"What prints? Tests scope chain and closure interaction.",
+code:`let a = 1;
+function outer() {
+  let a = 2;
+  function inner() {
+    let a = 3;
+    console.log(a);
+  }
+  inner();
+  console.log(a);
+}
+outer();
+console.log(a);`,
+a:`<b>Output: 3 → 2 → 1</b><br><br>
+Each function creates its own scope. inner() has its own a=3 — scope chain lookup stops there. outer() has its own a=2. Global has a=1. Variable shadowing in action — each scope's a is completely independent.`,
+follow:["What if inner() had no let a? What would it log?","What happens if you delete a variable declared with let?"]},
+
+{cat:"Scope & Execution",type:"theory",level:3,co:["Google","Netflix","Stripe"],
+q:"What is lexical scope vs dynamic scope? Why does JavaScript choosing lexical scope matter?",
+a:`<b>Lexical scope</b>: A function's scope chain is determined by where it is <b>written</b> in the source code — fixed at author time. JS uses this.<br><br>
+<b>Dynamic scope</b>: Scope chain determined by the <b>call stack</b> at runtime — depends on who called the function. Languages: Bash, some Lisp dialects.<br><br>
+<b>Why it matters</b>: Lexical scope makes code predictable — you can understand what a function can access just by reading it, without tracing the runtime call chain. This enables closures, module patterns, and reliable variable capture.`,
+code:`let x = 'global';
+function getX() { return x; }
+
+function callGetX() {
+  let x = 'local';
+  return getX(); // with LEXICAL scope: 'global'
+                  // with DYNAMIC scope: 'local'
+}
+callGetX(); // 'global' in JS`,
+tip:"The with statement in JS approximated dynamic scope — it was removed in strict mode precisely because it broke lexical scope guarantees.",
+follow:["What is the with statement? Why was it deprecated?","How does eval affect lexical scope?"]},
+
+/* ── TYPES & COERCION ── */
+{cat:"Types & Coercion",type:"theory",level:1,co:["TCS","Infosys","Cognizant"],
+q:"What are the 8 types in JavaScript? Explain the difference between primitive and object types.",
+a:`<b>Primitives (7):</b> undefined, null, boolean, number, bigint, string, symbol.<br>
+Primitives are <b>immutable</b> and passed/compared <b>by value</b>.<br><br>
+<b>Object (1):</b> Everything else — plain objects, arrays, functions, Date, Map, Set, RegExp, etc.<br>
+Objects are <b>mutable</b> and passed/compared <b>by reference</b>.<br><br>
+<b>typeof quirks to memorise:</b><br>
+typeof null = 'object' (25-year bug, can never be fixed)<br>
+typeof function(){} = 'function' (not 'object')<br>
+typeof [] = 'object'<br>
+typeof undefined = 'undefined'<br>
+typeof Symbol() = 'symbol'<br>
+typeof 42n = 'bigint'`,
+code:`typeof null          // 'object' — historical bug
+typeof []            // 'object'
+typeof function(){}  // 'function' — special case
+typeof Symbol()      // 'symbol'
+typeof 42n           // 'bigint'
+
+// Correct null check:
+value === null       // only reliable way`,
+tip:"null === null is always safe. typeof null being 'object' is a bug from JS's first version — Brendan Eich has publicly called it a mistake.",
+follow:["What is boxing/unboxing in JavaScript?","What is the difference between undefined and undeclared?"]},
+
+{cat:"Types & Coercion",type:"output",level:2,co:["Google","Meta","Airbnb"],
+q:"What is the output? Classic coercion traps.",
+code:`console.log(0 == false);
+console.log('' == false);
+console.log(null == undefined);
+console.log(null == 0);
+console.log([] == false);
+console.log([] == ![]);
+console.log(typeof NaN);
+console.log(NaN === NaN);`,
+a:`<b>Output: true → true → true → false → true → true → "number" → false</b><br><br>
+0==false: false→0, 0==0=true.<br>
+''==false: false→0, ''→0, 0==0=true.<br>
+null==undefined: special rule in spec — always true, no coercion.<br>
+null==0: null only equals undefined (and null) — false.<br>
+[]==false: false→0, []→''→0, 0==0=true.<br>
+[]==![]: ![]→false→0, []→0, 0==0=true.<br>
+typeof NaN: 'number' (NaN is a numeric value).<br>
+NaN===NaN: false — NaN is the only value not equal to itself.`,
+tip:"[] == ![] being true is the most famous JS coercion trap. Walk through both sides step by step on a whiteboard.",
+follow:["How do you reliably check for NaN?","What is the Abstract Equality Comparison algorithm?"]},
+
+{cat:"Types & Coercion",type:"output",level:3,co:["Meta","Netflix","Stripe"],
+q:"What is the output of these type coercion puzzles?",
+code:`console.log(1 + '2');
+console.log('3' - 1);
+console.log(true + true);
+console.log(true + false);
+console.log(+[]);
+console.log(+{});
+console.log('' + null);
+console.log('' + undefined);`,
+a:`<b>Output: "12" → 2 → 2 → 1 → 0 → NaN → "null" → "undefined"</b><br><br>
+1+'2': + with string → concatenation → "12".<br>
+'3'-1: - only works with numbers → '3'→3, 3-1=2.<br>
+true+true: true→1, 1+1=2.<br>
+true+false: 1+0=1.<br>
++[]: [] → '' → 0.<br>
++{}: {} → '[object Object]' → NaN.<br>
+''+null: null→'null' (no numeric coercion, toString).<br>
+''+undefined: 'undefined'.`,
+follow:["What is the toPrimitive abstract operation?","When does + prefer numeric coercion vs string?"]},
+
+/* ── FUNCTIONS ── */
+{cat:"Functions",type:"theory",level:1,co:["Amazon","Wipro","Zoho"],
+q:"What is the difference between function declaration, function expression, named function expression, and arrow function?",
+a:`<b>Function declaration</b>: Hoisted fully. Has own this, arguments, prototype. Can be constructor.<br>
+<b>Function expression</b>: Not hoisted (var container is). Otherwise same as declaration.<br>
+<b>Named function expression (NFE)</b>: Like expression but the name is scoped to the function body — useful for recursion and debugging.<br>
+<b>Arrow function</b>: Not hoisted. No own this (lexical), no arguments object, no prototype, cannot be constructor. Concise syntax.`,
+code:`// NFE — name is self-referential:
+const factorial = function fact(n) {
+  return n <= 1 ? 1 : n * fact(n - 1); // 'fact' accessible here
+};
+factorial(5); // 120
+// fact(5);   // ReferenceError — name not in outer scope
+
+// Arrow — no arguments:
+const fn = (...args) => args; // must use rest params instead`,
+tip:"NFEs are rarely asked but show deep JS knowledge. The name is ONLY accessible inside the function body.",
+follow:["What is the arguments object? How does rest parameter differ?","When should you NOT use an arrow function?"]},
+
+{cat:"Functions",type:"output",level:2,co:["Google","Stripe","Atlassian"],
+q:"What does this print? Tests higher-order function understanding.",
+code:`function compose(...fns) {
+  return x => fns.reduceRight((acc, fn) => fn(acc), x);
+}
+const add1  = x => x + 1;
+const double = x => x * 2;
+const square = x => x * x;
+
+const transform = compose(add1, double, square);
+console.log(transform(3));`,
+a:`<b>Output: 19</b><br><br>
+compose applies functions right-to-left (reduceRight).<br>
+square(3) = 9 → double(9) = 18 → add1(18) = 19.<br><br>
+If it were pipe (left-to-right with reduce): add1(3)=4 → double(4)=8 → square(8)=64.`,
+follow:["What is pipe vs compose?","How does reduceRight differ from reduce?"]},
+
+{cat:"Functions",type:"theory",level:3,co:["Meta","Google","Netflix"],
+q:"What are generator functions? How do they implement the iterator protocol?",
+code:`function* idGen() {
+  let id = 1;
+  while (true) {
+    const reset = yield id++;
+    if (reset) id = 1;
+  }
+}
+const gen = idGen();
+console.log(gen.next().value);    // 1
+console.log(gen.next().value);    // 2
+console.log(gen.next(true).value);// 1 (reset)
+console.log(gen.next().value);    // 2`,
+a:`A <b>generator function</b> (function*) returns a generator object implementing the Iterator protocol ({next, return, throw}).<br><br>
+Each yield <b>suspends execution</b>, preserving all local variables on the heap. next(value) resumes from the yield, and value becomes the result of the yield expression inside the generator.<br><br>
+<b>Two-way communication</b>: Values flow OUT via yield, values flow IN via next(). This makes generators powerful for coroutines, infinite sequences, and async orchestration (async/await is generators + Promises internally).`,
+tip:"The two-way communication via next(value) is the hardest concept — practice explaining it with a diagram.",
+follow:["What is yield*?","How did async/await replace generator-based async patterns like co?"]},
+
+/* ── ERROR HANDLING ── */
+{cat:"Error Handling",type:"theory",level:1,co:["Amazon","Flipkart","Razorpay"],
+q:"How does error handling differ between synchronous and asynchronous code? What are the pitfalls?",
+a:`<b>Sync</b>: try/catch works perfectly — errors are thrown synchronously up the call stack.<br><br>
+<b>setTimeout/setInterval callbacks</b>: try/catch does NOT catch them — the callback runs in a new event loop turn with an empty call stack. Errors go to window.onerror or process.on('uncaughtException').<br><br>
+<b>Promises</b>: Errors become rejections. Use .catch() or second arg to .then(). Uncaught rejections fire unhandledRejection event.<br><br>
+<b>async/await</b>: Rejections surface as thrown errors — wrap in try/catch. But only within the async function itself.`,
+code:`// PITFALL — try/catch doesn't catch async errors:
+try {
+  setTimeout(() => { throw new Error('async'); }, 0);
+} catch(e) { console.log('never'); } // error is UNCAUGHT
+
+// Promise — must use .catch:
+Promise.reject('fail').catch(e => console.log('caught:', e));
+
+// async/await — try/catch works:
+async function run() {
+  try { await Promise.reject('fail'); }
+  catch(e) { console.log('caught:', e); }
+}`,
+tip:"The try/catch-around-setTimeout gotcha is asked at Amazon and Flipkart. Always demonstrate you know the async error boundary.",
+follow:["What is unhandledRejection and how do you handle it globally?","What is Error.cause (ES2022)?"]},
+
+{cat:"Error Handling",type:"output",level:2,co:["Meta","Google","Netflix"],
+q:"What is the output? Async error handling chain.",
+code:`async function failing() {
+  throw new Error('boom');
+}
+async function handler() {
+  try {
+    await failing();
+    console.log('after failing'); // ?
+  } catch(e) {
+    console.log('caught:', e.message);
+    return 'recovered';
+  }
+}
+handler().then(v => console.log('result:', v));`,
+a:`<b>Output: "caught: boom" → "result: recovered"</b><br><br>
+failing() throws synchronously inside an async function → becomes a rejected Promise.<br>
+await failing() — rejection bubbles to the try/catch → logs "caught: boom".<br>
+"after failing" never logs — execution jumps to catch.<br>
+catch returns 'recovered' → handler() resolves with 'recovered' → .then logs "result: recovered".`,
+follow:["What if the catch block also threw?","What is the difference between return and return await inside async functions?"]},
+
+{cat:"Error Handling",type:"output",level:3,co:["Stripe","Shopify","Cloudflare"],
+q:"What is the output? Tests Promise error propagation subtleties.",
+code:`Promise.resolve()
+  .then(() => { throw 1; })
+  .then(() => console.log('a'))
+  .catch(e => { console.log('b', e); })
+  .then(() => { throw 2; })
+  .catch(e => console.log('c', e))
+  .then(() => console.log('d'));`,
+a:`<b>Output: "b 1" → "c 2" → "d"</b><br><br>
+throw 1 → rejection, skips .then(log a), caught by .catch(b) → logs "b 1", returns resolved Promise.<br>
+.then(() => throw 2) → new rejection. Caught by next .catch(c) → logs "c 2".<br>
+.then(log d) → logs "d".<br><br>
+Key: .catch() recovers and returns a RESOLVED Promise unless it re-throws. The chain continues after a catch.`,
+follow:["How does finally() interact with resolved vs rejected state?","What is Promise.prototype.finally?"]},
+
+/* ── GENERATORS & ITERATORS ── */
+{cat:"Generators & Iterators",type:"theory",level:2,co:["Google","Netflix","Stripe"],
+q:"What is the iterator protocol? What is the iterable protocol? How do they differ?",
+a:`<b>Iterator protocol</b>: An object is an iterator if it has a next() method that returns {value, done}.<br><br>
+<b>Iterable protocol</b>: An object is iterable if it has a [Symbol.iterator]() method that returns an iterator.<br><br>
+Many built-ins implement both (arrays, strings, Map, Set, generators). for...of, spread, destructuring all require the iterable protocol — they call [Symbol.iterator]() first.<br><br>
+A generator object is BOTH an iterator (has next()) AND an iterable ([Symbol.iterator]() returns itself).`,
+code:`// Custom iterable + iterator:
+const range = {
+  [Symbol.iterator](){ // iterable protocol
+    let i = 0;
+    return {
+      next() {          // iterator protocol
+        return i < 3 ? {value: i++, done:false} : {value:undefined, done:true};
+      }
+    };
+  }
+};
+[...range]; // [0, 1, 2]
+for(const n of range) console.log(n); // 0 1 2`,
+tip:"Knowing that generators are BOTH iterators AND iterables (return this from [Symbol.iterator]) is a deep detail that impresses senior interviewers.",
+follow:["What is a generator delegation with yield*?","How does Array.from use the iterator protocol?"]},
+
+{cat:"Generators & Iterators",type:"output",level:3,co:["Google","Meta","Stripe"],
+q:"What is the output? Tricky generator execution flow.",
+code:`function* gen() {
+  console.log('start');
+  const x = yield 1;
+  console.log('x is', x);
+  const y = yield 2;
+  console.log('y is', y);
+  return 3;
+}
+const g = gen();
+console.log(g.next());
+console.log(g.next(10));
+console.log(g.next(20));`,
+a:`<b>Output:</b><br>
+"start" → {value:1, done:false} → "x is 10" → {value:2, done:false} → "y is 20" → {value:3, done:true}<br><br>
+g.next(): runs until yield 1 → logs 'start', pauses, returns {value:1}.<br>
+g.next(10): resumes, 10 becomes value of yield expression → x=10, logs 'x is 10', pauses at yield 2 → {value:2}.<br>
+g.next(20): resumes, y=20, logs 'y is 20', hits return 3 → {value:3, done:true}.`,
+follow:["What does g.return(5) do?","What does g.throw(new Error()) do?"]},
+
+/* ── WEAKMAP & WEAKSET ── */
+{cat:"WeakMap & WeakSet",type:"theory",level:2,co:["Google","Meta","Netflix"],
+q:"What are WeakMap and WeakSet? Why are they not iterable?",
+a:`<b>WeakMap</b>: A Map where keys must be objects. The key reference is <b>weak</b> — if the key object has no other strong references, it can be garbage collected and the entry is automatically removed. No .size, not iterable.<br><br>
+<b>WeakSet</b>: A Set of objects with weak references. Same GC semantics. No .size, not iterable.<br><br>
+<b>Why not iterable?</b> Because GC is non-deterministic — an entry might be collected at any time. If you could iterate, the results would be unpredictable between different runs or JS engines. Making them non-iterable is a deliberate design decision to reflect this uncertainty.`,
+code:`let obj = { name: 'Alice' };
+const wm = new WeakMap();
+wm.set(obj, 'private data');
+
+console.log(wm.get(obj));  // 'private data'
+obj = null;                // obj eligible for GC
+// wm entry is now also eligible for GC — automatic cleanup!`,
+tip:"The non-iterability is the hardest part to explain. It's not a limitation — it's intentional, because the state of a WeakMap can change at any moment due to GC.",
+follow:["What is FinalizationRegistry?","What is WeakRef and when would you use it?"]},
+
+{cat:"WeakMap & WeakSet",type:"output",level:2,co:["Google","Shopify"],
+q:"What is the output? Tests WeakMap vs Map semantics.",
+code:`const map = new Map();
+const wm  = new WeakMap();
+let key = {};
+
+map.set(key, 'map value');
+wm.set(key, 'wm value');
+
+console.log(map.get(key));
+console.log(wm.get(key));
+console.log(map.size);
+
+key = null; // remove reference
+console.log(map.size); // ?
+// What about wm?`,
+a:`<b>Output: "map value" → "wm value" → 1 → 1</b><br><br>
+map.size is still 1 after key = null because Map holds a STRONG reference to the key object — it prevents GC. The entry stays forever unless explicitly deleted.<br><br>
+wm: After key = null, the key object's only remaining reference is the weak one in wm. It becomes eligible for GC — the wm entry will eventually disappear. But you can't observe this synchronously.`,
+follow:["How would you implement a private instance data store using WeakMap?","Why can't you use primitives as WeakMap keys?"]},
+
+{cat:"WeakMap & WeakSet",type:"theory",level:3,co:["Meta","Netflix","Shopify"],
+q:"Give three real-world use cases for WeakMap.",
+a:`<b>1. Private instance data</b>: Before # private fields, WeakMap was the standard pattern for truly private state. The instance is the key; when the instance is GC'd, the private data is too.<br><br>
+<b>2. Caching/memoization with object keys</b>: Store computed results keyed by objects. When the object is no longer needed elsewhere, the cache entry is automatically freed — no manual cache invalidation.<br><br>
+<b>3. Tracking DOM node metadata</b>: Associate data with DOM nodes without risk of memory leaks. When the node is removed and dereferenced, its WeakMap entry is GC'd automatically.`,
+code:`// 1. Private data:
+const _private = new WeakMap();
+class Person {
+  constructor(name, secret) {
+    _private.set(this, { secret });
+    this.name = name;
+  }
+  getSecret() { return _private.get(this).secret; }
+}
+
+// 2. Memoize with object key:
+const cache = new WeakMap();
+function expensiveCalc(obj) {
+  if (cache.has(obj)) return cache.get(obj);
+  const result = obj.value * 2; // expensive
+  cache.set(obj, result);
+  return result;
+}`,
+tip:"The DOM metadata use case is very relevant for frontend interviews at Meta/Google. No need for cleanup — GC handles it.",
+follow:["How does WeakRef differ from WeakMap keys?","Can a WeakMap value be a primitive?"]},
+
+/* ── SYMBOLS ── */
+{cat:"Symbols",type:"theory",level:1,co:["Google","Stripe","Atlassian"],
+q:"What is a Symbol? What problem does it solve?",
+a:`A <b>Symbol</b> is a primitive type that produces a guaranteed unique value every time it's called — even with the same description. It was introduced in ES6 to solve the <b>name collision problem</b>: you can add properties to objects without risk of overwriting existing properties.<br><br>
+<b>Key properties:</b><br>
+- Always unique: Symbol('x') !== Symbol('x')<br>
+- Not auto-converted to string — must use .toString() or .description<br>
+- Hidden from Object.keys(), JSON.stringify(), for...in — won't accidentally appear<br>
+- Can be used as object property keys`,
+code:`const id = Symbol('id');
+const user = { name: 'Alice', [id]: 123 };
+
+user[id];            // 123
+Object.keys(user);   // ['name'] — Symbol hidden
+JSON.stringify(user);// {"name":"Alice"} — Symbol excluded
+
+// Uniqueness guaranteed:
+Symbol('x') === Symbol('x'); // false
+Symbol.for('x') === Symbol.for('x'); // true — global registry`,
+tip:"Symbol.for() creates a SHARED symbol via a global registry — useful when multiple modules need the same symbol key.",
+follow:["What are well-known Symbols?","What is Symbol.iterator used for?"]},
+
+{cat:"Symbols",type:"output",level:2,co:["Google","Meta","Netflix"],
+q:"What is the output? Tests Symbol uniqueness and visibility.",
+code:`const s1 = Symbol('foo');
+const s2 = Symbol('foo');
+const s3 = Symbol.for('bar');
+const s4 = Symbol.for('bar');
+
+console.log(s1 === s2);
+console.log(s3 === s4);
+console.log(typeof s1);
+
+const obj = { [s1]: 'a', [s2]: 'b', normal: 'c' };
+console.log(Object.keys(obj));
+console.log(Object.getOwnPropertySymbols(obj).length);`,
+a:`<b>Output: false → true → "symbol" → ["normal"] → 2</b><br><br>
+s1 !== s2: each Symbol() call creates a unique symbol even with same description.<br>
+s3 === s4: Symbol.for() uses a global registry — same key = same symbol.<br>
+typeof s1 = "symbol".<br>
+Object.keys: only string keys → ["normal"].<br>
+getOwnPropertySymbols: both s1 and s2 are own symbol properties → length 2.`,
+follow:["How do you copy Symbols when using Object.assign?","Does spread operator copy Symbol properties?"]},
+
+{cat:"Symbols",type:"theory",level:3,co:["Google","Netflix","Shopify"],
+q:"What are well-known Symbols? Give practical examples of Symbol.iterator, Symbol.toPrimitive, and Symbol.hasInstance.",
+code:`// Symbol.iterator — make object iterable:
+class NumberRange {
+  constructor(start, end) { this.start = start; this.end = end; }
+  [Symbol.iterator]() {
+    let cur = this.start, end = this.end;
+    return { next: () => cur <= end
+      ? { value: cur++, done: false }
+      : { done: true } };
+  }
+}
+[...new NumberRange(1, 3)]; // [1, 2, 3]
+
+// Symbol.toPrimitive — custom coercion:
+const money = {
+  amount: 100, currency: 'USD',
+  [Symbol.toPrimitive](hint) {
+    if (hint === 'number') return this.amount;
+    if (hint === 'string') return this.amount + ' ' + this.currency;
+    return this.amount;
+  }
+};
++money;      // 100
+\`\${money}\`;  // "100 USD"
+money + 5;   // 105
+
+// Symbol.hasInstance — customise instanceof:
+class Even {
+  static [Symbol.hasInstance](num) { return num % 2 === 0; }
+}
+2 instanceof Even;  // true
+3 instanceof Even;  // false`,
+a:`<b>Well-known Symbols</b> are built-in Symbols that customise JS language behaviour:<br><br>
+<b>Symbol.iterator</b>: Defines how an object is iterated (for...of, spread, destructuring).<br>
+<b>Symbol.toPrimitive</b>: Controls type coercion with a hint ('number', 'string', 'default').<br>
+<b>Symbol.hasInstance</b>: Customises the instanceof operator.<br>
+Others: Symbol.asyncIterator, Symbol.species, Symbol.match, Symbol.replace, Symbol.toStringTag.`,
+tip:"Symbol.toPrimitive completely replaces valueOf and toString for type coercion — knowing this shows spec-level knowledge.",
+follow:["What is Symbol.toStringTag used for?","How does Symbol.asyncIterator enable async iterables?"]},
+];
+
+let openSet=new Set(), activeCat='All', activeType='all', searchTerm='';
+
+function buildCats(){
+  const cats=['All',...new Set(Q.map(q=>q.cat))];
+  const row=document.getElementById('catrow');
+  cats.forEach((c,i)=>{
+    const cnt=c==='All'?Q.length:Q.filter(x=>x.cat===c).length;
+    const p=document.createElement('div');
+    p.className='pill'+(i===0?' on':'');
+    p.textContent=c+' ('+cnt+')';
+    p.onclick=()=>{activeCat=c;document.querySelectorAll('.pill').forEach(x=>x.classList.remove('on'));p.classList.add('on');render();};
+    row.appendChild(p);
+  });
+}
+
+function setType(t,el){
+  activeType=t;
+  document.querySelectorAll('.tpill').forEach(x=>x.classList.remove('on'));
+  el.classList.add('on');
+  render();
+}
+
+function applyFilters(){searchTerm=document.getElementById('srch').value.toLowerCase();render();}
+
+function filtered(){
+  return Q.filter(q=>{
+    const catOk=activeCat==='All'||q.cat===activeCat;
+    const typeOk=activeType==='all'||q.type===activeType;
+    const srchOk=!searchTerm||q.q.toLowerCase().includes(searchTerm)||q.cat.toLowerCase().includes(searchTerm)||(q.a&&q.a.toLowerCase().includes(searchTerm));
+    return catOk&&typeOk&&srchOk;
+  });
+}
+
+function lvlCls(l){return['','tl1','tl2','tl3','tl4'][l]||'tl1';}
+function lvlLbl(l){return['','Beginner','Intermediate','Advanced','Expert'][l]||'';}
+
+function render(){
+  const list=filtered();
+  const qlist=document.getElementById('qlist');
+  qlist.innerHTML='';
+  const theory=list.filter(q=>q.type==='theory').length;
+  const output=list.filter(q=>q.type==='output').length;
+  document.getElementById('sTotal').textContent=list.length;
+  document.getElementById('sTheory').textContent=theory;
+  document.getElementById('sOutput').textContent=output;
+  document.getElementById('sOpen').textContent=openSet.size;
+
+  if(!list.length){qlist.innerHTML='<div class="empty">No questions match. Try different filters.</div>';updateBar();return;}
+
+  list.forEach((q,idx)=>{
+    const gi=Q.indexOf(q);
+    const isOpen=openSet.has(gi);
+    const card=document.createElement('div');
+    card.className=`qcard type-${q.type}`;
+
+    const coHtml=q.co.map(c=>`<span class="co">${c}</span>`).join('');
+    const codeHtml=q.code?`<div class="code">${q.code.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div>`:'';
+    const tipHtml=q.tip?`<div class="tip">${q.tip}</div>`:'';
+    const followHtml=q.follow?`<div class="fqs"><div class="fq-label">Follow-up questions</div>${q.follow.map(f=>`<span class="fq" onclick="sendPrompt('${f.replace(/'/g,'')}')">${f} ↗</span>`).join('')}</div>`:'';
+    const typeBadge=`<span class="tag ${q.type==='output'?'tt-output':'tt-theory'}">${q.type==='output'?'Output':'Theory'}</span>`;
+
+    card.innerHTML=`
+      <div class="qh" onclick="toggle(${gi})">
+        <span class="qnum">Q${idx+1}</span>
+        <div class="qr">
+          <div class="tags">
+            <span class="tag tc">${q.cat}</span>
+            ${typeBadge}
+            <span class="tag ${lvlCls(q.level)}">${lvlLbl(q.level)}</span>
+          </div>
+          <div class="qtext">${q.q}</div>
+          <div class="co-row">${coHtml}</div>
+        </div>
+        <span class="qtog">${isOpen?'−':'+'}</span>
+      </div>
+      <div class="ans${isOpen?' open':''}" id="ans-${gi}">
+        <div class="ans-box">
+          ${q.a}
+          ${codeHtml}
+          ${tipHtml}
+          ${followHtml}
+        </div>
+      </div>`;
+    qlist.appendChild(card);
+  });
+  updateBar();
+}
+
+function toggle(gi){
+  if(openSet.has(gi))openSet.delete(gi);else openSet.add(gi);
+  render();
+}
+
+function updateBar(){
+  const list=filtered();
+  const pct=list.length?Math.min(openSet.size/list.length*100,100):0;
+  document.getElementById('sbar').style.width=pct+'%';
+}
+
+buildCats();render();
+</script>

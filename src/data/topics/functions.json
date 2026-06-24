@@ -1,0 +1,60 @@
+{
+  "topic": "functions",
+  "questions": [
+    {
+      "id": "functions-001",
+      "type": "theory",
+      "level": 1,
+      "question": "What is the difference between function declaration, function expression, named function expression, and arrow function?",
+      "answer": "<b>Function declaration</b>: Hoisted fully. Has own this, arguments, prototype. Can be constructor.<br><b>Function expression</b>: Not hoisted (var container is). Otherwise same as declaration.<br><b>Named function expression (NFE)</b>: Like expression but the name is scoped to the function body — useful for recursion and debugging.<br><b>Arrow function</b>: Not hoisted. No own this (lexical), no arguments object, no prototype, cannot be constructor. Concise syntax.",
+      "code": "// NFE — name is self-referential:\nconst factorial = function fact(n) {\n  return n <= 1 ? 1 : n * fact(n - 1); // 'fact' accessible here\n};\nfactorial(5); // 120\n// fact(5);   // ReferenceError — name not in outer scope\n\n// Arrow — no arguments:\nconst fn = (...args) => args; // must use rest params instead",
+      "tip": "NFEs are rarely asked but show deep JS knowledge. The name is ONLY accessible inside the function body.",
+      "followUps": ["What is the arguments object? How does rest parameter differ?", "When should you NOT use an arrow function?"],
+      "companies": ["Amazon", "Wipro", "Zoho"]
+    },
+    {
+      "id": "functions-002",
+      "type": "output",
+      "level": 2,
+      "question": "What does this print? Tests higher-order function understanding.",
+      "answer": "<b>Output: 19</b><br><br>compose applies functions right-to-left (reduceRight).<br>square(3) = 9 → double(9) = 18 → add1(18) = 19.<br><br>If it were pipe (left-to-right with reduce): add1(3)=4 → double(4)=8 → square(8)=64.",
+      "code": "function compose(...fns) {\n  return x => fns.reduceRight((acc, fn) => fn(acc), x);\n}\nconst add1  = x => x + 1;\nconst double = x => x * 2;\nconst square = x => x * x;\n\nconst transform = compose(add1, double, square);\nconsole.log(transform(3));",
+      "tip": "",
+      "followUps": ["What is pipe vs compose?", "How does reduceRight differ from reduce?"],
+      "companies": ["Google", "Stripe", "Atlassian"]
+    },
+    {
+      "id": "functions-003",
+      "type": "theory",
+      "level": 3,
+      "question": "What are generator functions? How do they implement the iterator protocol?",
+      "answer": "A <b>generator function</b> (function*) returns a generator object implementing the Iterator protocol ({next, return, throw}).<br><br>Each yield <b>suspends execution</b>, preserving all local variables on the heap. next(value) resumes from the yield, and value becomes the result of the yield expression inside the generator.<br><br><b>Two-way communication</b>: Values flow OUT via yield, values flow IN via next(). This makes generators powerful for coroutines, infinite sequences, and async orchestration (async/await is generators + Promises internally).",
+      "code": "function* idGen() {\n  let id = 1;\n  while (true) {\n    const reset = yield id++;\n    if (reset) id = 1;\n  }\n}\nconst gen = idGen();\nconsole.log(gen.next().value);    // 1\nconsole.log(gen.next().value);    // 2\nconsole.log(gen.next(true).value);// 1 (reset)\nconsole.log(gen.next().value);    // 2",
+      "tip": "The two-way communication via next(value) is the hardest concept — practice explaining it with a diagram.",
+      "followUps": ["What is yield*?", "How did async/await replace generator-based async patterns like co?"],
+      "companies": ["Meta", "Google", "Netflix"]
+    },
+    {
+      "id": "functions-004",
+      "type": "theory",
+      "level": 1,
+      "question": "What is the difference between function declaration, function expression, and arrow function?",
+      "answer": "<b>Function declaration</b>: Fully hoisted. Has its own this, arguments, prototype. Can be used as a constructor.<br><br><b>Function expression</b>: Not hoisted (only var container is, as undefined). Otherwise same capabilities as declaration.<br><br><b>Arrow function</b>: Not hoisted. No own this (lexical), no arguments object, no prototype. Cannot be a constructor. Ideal for callbacks and where lexical this is needed.",
+      "code": "// Declaration — hoisted:\nsayHi(); // works!\nfunction sayHi() { console.log('hi'); }\n\n// Expression — not hoisted:\n// sayBye(); // TypeError\nconst sayBye = function() { console.log('bye'); };\n\n// Arrow — concise, lexical this:\nconst double = x => x * 2;\n\n// No arguments object in arrow:\nconst fn = () => arguments; // ReferenceError in strict mode",
+      "tip": "Interviewers often follow up with: 'When should you NOT use an arrow function?' Answer: object methods, constructors, prototype methods, functions needing their own this/arguments.",
+      "followUps": ["What is the arguments object and how does it differ from rest parameters?", "What is a named function expression and why use it?"],
+      "companies": ["Amazon", "Wipro", "Zoho"]
+    },
+    {
+      "id": "functions-005",
+      "type": "implementation",
+      "level": 2,
+      "question": "What are higher-order functions? Implement map, filter, and reduce from scratch.",
+      "answer": "A <b>higher-order function</b> is a function that takes a function as an argument and/or returns a function. They are the foundation of functional programming in JavaScript.",
+      "code": "// map — transforms each element:\nArray.prototype.myMap = function(fn) {\n  const result = [];\n  for (let i = 0; i < this.length; i++) {\n    result.push(fn(this[i], i, this));\n  }\n  return result;\n};\n\n// filter — keeps elements matching predicate:\nArray.prototype.myFilter = function(fn) {\n  const result = [];\n  for (let i = 0; i < this.length; i++) {\n    if (fn(this[i], i, this)) result.push(this[i]);\n  }\n  return result;\n};\n\n// reduce — accumulates a single value:\nArray.prototype.myReduce = function(fn, initial) {\n  let acc = initial !== undefined ? initial : this[0];\n  let start = initial !== undefined ? 0 : 1;\n  for (let i = start; i < this.length; i++) {\n    acc = fn(acc, this[i], i, this);\n  }\n  return acc;\n};\n\n[1,2,3].myMap(x => x * 2);         // [2,4,6]\n[1,2,3,4].myFilter(x => x % 2===0); // [2,4]\n[1,2,3,4].myReduce((a,b) => a+b);   // 10",
+      "tip": "Implementing reduce correctly (handling missing initial value and passing index/array) shows you know the spec, not just the concept.",
+      "followUps": ["What is the difference between reduce and reduceRight?", "Can you compose map and filter using reduce?"],
+      "companies": ["Google", "Meta", "Stripe"]
+    }
+  ]
+}

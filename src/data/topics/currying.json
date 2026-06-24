@@ -1,0 +1,71 @@
+{
+  "topic": "currying",
+  "questions": [
+    {
+      "id": "currying-001",
+      "type": "theory",
+      "level": 1,
+      "question": "What is currying? How is it different from partial application?",
+      "answer": "<b>Currying</b>: Transforms a function of N arguments into a sequence of N functions each taking one argument. f(a,b,c) becomes f(a)(b)(c).<br><br><b>Partial application</b>: Pre-fills some arguments of a function, returning a new function waiting for the remaining ones. Not necessarily one at a time.<br><br>Currying is a specific form of partial application where each step takes exactly one argument.",
+      "code": "// Currying (one arg at a time):\nconst add = a => b => c => a + b + c;\nadd(1)(2)(3); // 6\n\n// Partial application (multiple args at once):\nfunction partial(fn, ...preset) {\n  return (...rest) => fn(...preset, ...rest);\n}\nconst add5and10 = partial((a,b,c) => a+b+c, 5, 10);\nadd5and10(3); // 18",
+      "tip": "Mention that currying is heavily used in functional programming libraries like Ramda and Haskell-inspired JS code.",
+      "followUps": ["Implement a generic curry() function that works for any arity.", "What is point-free style and how does currying enable it?"],
+      "companies": ["Atlassian", "Juspay", "Razorpay"]
+    },
+    {
+      "id": "currying-002",
+      "type": "implementation",
+      "level": 3,
+      "question": "Implement a curry() function that handles variable arity and also supports placeholder arguments.",
+      "answer": "A full curry implementation that also supports <b>_</b> as a placeholder for skipping positional arguments — as seen in Ramda.",
+      "code": "const _ = Symbol('placeholder');\n\nfunction curry(fn) {\n  const arity = fn.length;\n\n  return function curried(...args) {\n    // Replace placeholders with new args\n    const filled = args.slice();\n    const pending = args.filter(a => a === _).length;\n\n    if (filled.length - pending >= arity) {\n      return fn(...filled.filter(a => a !== _));\n    }\n\n    return function(...more) {\n      const merged = filled.map(a => a === _ && more.length ? more.shift() : a);\n      return curried(...merged, ...more);\n    };\n  };\n}\n\nconst add3 = curry((a, b, c) => a + b + c);\nadd3(1)(2)(3);          // 6\nadd3(1, 2)(3);          // 6\nconst addTo10 = add3(_, _, 10); // placeholder\naddTo10(1)(2);          // 13",
+      "tip": "Placeholder support is a rare deep topic — mentioning Ramda's R.__ shows real functional programming exposure.",
+      "followUps": ["What is transducer composition?", "How does currying relate to function composition?"],
+      "companies": ["Google", "Stripe", "Atlassian"]
+    },
+    {
+      "id": "currying-003",
+      "type": "quiz",
+      "difficulty": "easy",
+      "title": "Basic curry — call sequence",
+      "code": "function curry(a) {\n  return function(b) {\n    return function(c) {\n      return a + b + c;\n    };\n  };\n}\nconsole.log(curry(1)(2)(3));",
+      "options": ["6", "123", "undefined", "NaN"],
+      "answer": 0,
+      "explanation": "<b>Output: 6</b><br>curry(1) returns a function closing over a=1. Calling it with (2) returns another function closing over a=1, b=2. Calling that with (3) returns 1+2+3=6. Each function in the chain closes over the previously captured arguments.",
+      "concept": "Manual curry — nested closures"
+    },
+    {
+      "id": "currying-004",
+      "type": "quiz",
+      "difficulty": "medium",
+      "title": "Partial application with curry",
+      "code": "const multiply = (a) => (b) => a * b;\nconst double = multiply(2);\nconst triple = multiply(3);\n\nconsole.log(double(5));\nconsole.log(triple(double(4)));",
+      "options": ["10  24", "10  14", "5  12", "10  12"],
+      "answer": 0,
+      "explanation": "<b>Output: 10 then 24</b><br>double closes over a=2. double(5) = 2*5 = 10. double(4) = 2*4 = 8. triple closes over a=3. triple(8) = 3*8 = 24.",
+      "concept": "Curried functions as reusable partials"
+    },
+    {
+      "id": "currying-005",
+      "type": "quiz",
+      "difficulty": "hard",
+      "title": "Auto-curry — how many args collected?",
+      "code": "function autoCurry(fn) {\n  return function curried(...args) {\n    if (args.length >= fn.length) {\n      return fn(...args);\n    }\n    return (...more) => curried(...args, ...more);\n  };\n}\nconst add3 = autoCurry((a, b, c) => a + b + c);\nconst step1 = add3(1);\nconst step2 = step1(2);\nconsole.log(step2(3));",
+      "options": ["6", "undefined", "[Function]", "Error"],
+      "answer": 0,
+      "explanation": "<b>Output: 6</b><br>fn.length = 3. add3(1): args=[1], 1 < 3 → returns new curried closing over [1]. step1(2): args=[1,2], 2 < 3 → returns new curried closing over [1,2]. step2(3): args=[1,2,3], 3 >= 3 → calls fn(1,2,3) = 6.",
+      "concept": "Auto-curry accumulates args via closure"
+    },
+    {
+      "id": "currying-006",
+      "type": "quiz",
+      "difficulty": "tricky",
+      "title": "Curry — reuse partial",
+      "code": "const add = a => b => a + b;\nconst add10 = add(10);\n\nconsole.log(add10(5));\nconsole.log(add10(20));\nconsole.log(add(1)(2));",
+      "options": ["15  30  3", "15  20  3", "10  20  3", "15  30  12"],
+      "answer": 0,
+      "explanation": "<b>Output: 15, 30, 3</b><br>add10 is a closure capturing a=10. It can be reused: add10(5)=15, add10(20)=30. add(1)(2) creates a fresh closure capturing a=1, called with b=2 → 3. Curried functions are stateless and safe to reuse.",
+      "concept": "Curried partial is reusable and stateless"
+    }
+  ]
+}

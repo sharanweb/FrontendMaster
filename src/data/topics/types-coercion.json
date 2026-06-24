@@ -1,0 +1,60 @@
+{
+  "topic": "types-coercion",
+  "questions": [
+    {
+      "id": "types-001",
+      "type": "theory",
+      "level": 1,
+      "question": "What are the 8 types in JavaScript? Explain the difference between primitive and object types.",
+      "answer": "<b>Primitives (7):</b> undefined, null, boolean, number, bigint, string, symbol.<br>Primitives are <b>immutable</b> and passed/compared <b>by value</b>.<br><br><b>Object (1):</b> Everything else — plain objects, arrays, functions, Date, Map, Set, RegExp, etc.<br>Objects are <b>mutable</b> and passed/compared <b>by reference</b>.<br><br><b>typeof quirks to memorise:</b><br>typeof null = 'object' (25-year bug, can never be fixed)<br>typeof function(){} = 'function' (not 'object')<br>typeof [] = 'object'<br>typeof undefined = 'undefined'<br>typeof Symbol() = 'symbol'<br>typeof 42n = 'bigint'",
+      "code": "typeof null          // 'object' — historical bug\ntypeof []            // 'object'\ntypeof function(){}  // 'function' — special case\ntypeof Symbol()      // 'symbol'\ntypeof 42n           // 'bigint'\n\n// Correct null check:\nvalue === null       // only reliable way",
+      "tip": "null === null is always safe. typeof null being 'object' is a bug from JS's first version — Brendan Eich has publicly called it a mistake.",
+      "followUps": ["What is boxing/unboxing in JavaScript?", "What is the difference between undefined and undeclared?"],
+      "companies": ["TCS", "Infosys", "Cognizant"]
+    },
+    {
+      "id": "types-002",
+      "type": "output",
+      "level": 2,
+      "question": "What is the output? Classic coercion traps.",
+      "answer": "<b>Output: true → true → true → false → true → true → \"number\" → false</b><br><br>0==false: false→0, 0==0=true.<br>''==false: false→0, ''→0, 0==0=true.<br>null==undefined: special rule in spec — always true, no coercion.<br>null==0: null only equals undefined (and null) — false.<br>[]==false: false→0, []→''→0, 0==0=true.<br>[]==![]: ![]→false→0, []→0, 0==0=true.<br>typeof NaN: 'number' (NaN is a numeric value).<br>NaN===NaN: false — NaN is the only value not equal to itself.",
+      "code": "console.log(0 == false);\nconsole.log('' == false);\nconsole.log(null == undefined);\nconsole.log(null == 0);\nconsole.log([] == false);\nconsole.log([] == ![]);\nconsole.log(typeof NaN);\nconsole.log(NaN === NaN);",
+      "tip": "[] == ![] being true is the most famous JS coercion trap. Walk through both sides step by step on a whiteboard.",
+      "followUps": ["How do you reliably check for NaN?", "What is the Abstract Equality Comparison algorithm?"],
+      "companies": ["Google", "Meta", "Airbnb"]
+    },
+    {
+      "id": "types-003",
+      "type": "output",
+      "level": 3,
+      "question": "What is the output of these type coercion puzzles?",
+      "answer": "<b>Output: \"12\" → 2 → 2 → 1 → 0 → NaN → \"null\" → \"undefined\"</b><br><br>1+'2': + with string → concatenation → \"12\".<br>'3'-1: - only works with numbers → '3'→3, 3-1=2.<br>true+true: true→1, 1+1=2.<br>true+false: 1+0=1.<br>+[]: [] → '' → 0.<br>+{}: {} → '[object Object]' → NaN.<br>''+null: null→'null' (no numeric coercion, toString).<br>''+undefined: 'undefined'.",
+      "code": "console.log(1 + '2');\nconsole.log('3' - 1);\nconsole.log(true + true);\nconsole.log(true + false);\nconsole.log(+[]);\nconsole.log(+{});\nconsole.log('' + null);\nconsole.log('' + undefined);",
+      "tip": "",
+      "followUps": ["What is the toPrimitive abstract operation?", "When does + prefer numeric coercion vs string?"],
+      "companies": ["Meta", "Netflix", "Stripe"]
+    },
+    {
+      "id": "types-004",
+      "type": "theory",
+      "level": 1,
+      "question": "What is type coercion in JavaScript? What is the difference between == and ===?",
+      "answer": "<b>Type coercion</b>: JS automatically converts values from one type to another when needed (implicit coercion).<br><br><b>=== (strict equality)</b>: No coercion. Values must be the same type AND same value. Always use this.<br><br><b>== (abstract equality)</b>: Performs coercion per the Abstract Equality Comparison algorithm. Follows complex rules that are hard to predict.",
+      "code": "// == coercion surprises:\n0 == false   // true  (false coerced to 0)\n'' == false  // true\nnull == undefined // true\nnull == 0    // false (special case!)\n[] == false  // true\n[] == ![]    // true (both coerce to 0)\n\n// === — no surprises:\n0 === false  // false\nnull === undefined // false",
+      "tip": "[] == ![] being true is the most famous coercion trap — walk through why: ![] = false, [] == false → [] → '' → 0, false → 0, 0==0=true.",
+      "followUps": ["What are the rules of Abstract Equality Comparison?", "What is the difference between falsy and nullish?"],
+      "companies": ["Infosys", "TCS", "Accenture"]
+    },
+    {
+      "id": "types-005",
+      "type": "theory",
+      "level": 2,
+      "question": "What are the 8 data types in JavaScript? What is the difference between primitive and object types?",
+      "answer": "<b>Primitives (7)</b>: undefined, null, boolean, number, bigint, string, symbol. Primitives are <b>immutable</b> and <b>stored by value</b>.<br><br><b>Object (1)</b>: Everything else — plain objects, arrays, functions, Date, Map, Set, etc. Objects are <b>mutable</b> and <b>stored by reference</b>.<br><br>Key implication: comparing two objects with === checks reference identity, not structural equality.",
+      "code": "// Primitive — by value:\nlet a = 'hello';\nlet b = a;\nb = 'world';\nconsole.log(a); // 'hello' — unchanged\n\n// Object — by reference:\nlet obj1 = { x: 1 };\nlet obj2 = obj1;     // same reference!\nobj2.x = 99;\nconsole.log(obj1.x); // 99 — shared!\n\n// typeof quirks:\ntypeof null     // 'object' — historical bug!\ntypeof function(){} // 'function'\ntypeof []       // 'object'",
+      "tip": "typeof null = 'object' is a 25-year-old bug that can never be fixed for backwards compatibility. Always mention it.",
+      "followUps": ["How do you deep clone an object?", "What is Symbol and when would you use it?"],
+      "companies": ["Google", "Meta", "Airbnb"]
+    }
+  ]
+}

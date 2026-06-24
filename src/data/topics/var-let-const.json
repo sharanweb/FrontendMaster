@@ -1,0 +1,71 @@
+{
+  "topic": "var-let-const",
+  "questions": [
+    {
+      "id": "var-let-001",
+      "type": "theory",
+      "level": 1,
+      "question": "Explain the difference between var, let, and const in terms of scope, hoisting, and the temporal dead zone.",
+      "answer": "<b>var</b>: function-scoped (or global if top-level). Hoisted and initialised to undefined. Can be re-declared. No TDZ.<br><br><b>let</b>: block-scoped. Hoisted but NOT initialised — accessing before declaration throws a ReferenceError (Temporal Dead Zone). Cannot be re-declared in same scope.<br><br><b>const</b>: same as let for scope and TDZ, but the binding cannot be reassigned after initialisation. The value itself can still be mutated (e.g. pushing to a const array).",
+      "code": "// TDZ demo\nconsole.log(a); // undefined (var hoisted+initialised)\nconsole.log(b); // ReferenceError (let in TDZ)\nvar a = 1;\nlet b = 2;\n\n// const mutation\nconst arr = [1,2,3];\narr.push(4);   // OK — array is mutated, not reassigned\narr = [];      // TypeError — reassignment blocked",
+      "tip": "Always mention that const gives you an immutable BINDING, not an immutable VALUE. This trips up many candidates.",
+      "followUps": ["Why was let/const introduced if var existed?", "What is the TDZ (Temporal Dead Zone) internally?"],
+      "companies": ["Amazon", "Microsoft", "Infosys"]
+    },
+    {
+      "id": "var-let-002",
+      "type": "theory",
+      "level": 2,
+      "question": "Why does let create a new binding per loop iteration but var doesn't? What does the spec say?",
+      "answer": "The ECMAScript spec says that for <b>for loops with let</b>, a new lexical environment is created for each iteration — so each closure gets its own copy of the iteration variable. The engine also copies the variable's value from the previous iteration into the new environment.<br><br>For <b>var</b>, there is no per-iteration scope — all iterations share one binding in the containing function scope. Closures capture a reference to this single binding.",
+      "code": "// var — all closures share the same i:\nconst fns1 = [];\nfor (var i = 0; i < 3; i++) { fns1.push(() => i); }\nfns1[0](); // 3 (final value)\n\n// let — each iteration has its own binding:\nconst fns2 = [];\nfor (let i = 0; i < 3; i++) { fns2.push(() => i); }\nfns2[0](); // 0\nfns2[1](); // 1\nfns2[2](); // 2",
+      "tip": "Referencing the ECMAScript spec (section 14.7.4) in an interview immediately signals deep preparation.",
+      "followUps": ["Does for...of also create a new binding per iteration?", "What about for...in with let?"],
+      "companies": ["Google", "Meta"]
+    },
+    {
+      "id": "var-let-003",
+      "type": "theory",
+      "level": 3,
+      "question": "Is it ever correct to use var in modern JavaScript? Give a real scenario.",
+      "answer": "In practice, almost never — but there are edge cases:<br><br>1. <b>Global intentional declarations</b>: var at the top level adds a property to the window object, which some legacy code relies on.<br><br>2. <b>Function-scoped flag patterns</b>: Rare cases where you explicitly want a variable to persist beyond a block inside a function.<br><br>3. <b>Legacy code maintenance</b>: Mixing var and let in the same codebase can introduce subtle bugs — sometimes consistency in old code is safer.<br><br>In modern code, <b>prefer const by default, let when reassignment is needed, and never var</b>.",
+      "code": "",
+      "tip": "This question tests judgment, not just knowledge. Show you understand WHY the rule exists, not just that the rule exists.",
+      "followUps": ["What ESLint rules enforce no-var?", "Does strict mode affect var behaviour?"],
+      "companies": ["Atlassian", "Stripe"]
+    },
+    {
+      "id": "var-let-004",
+      "type": "quiz",
+      "difficulty": "medium",
+      "title": "var ignores block scope",
+      "code": "var x = 'outer';\n{\n  var x = 'inner';\n}\nconsole.log(x);",
+      "options": ["outer", "inner", "undefined", "SyntaxError"],
+      "answer": 1,
+      "explanation": "<b>Output: \"inner\"</b><br>Both var declarations refer to the same variable because var ignores block scope. The second var x = 'inner' simply reassigns the same x. If this were let, the inner x would be a separate block-scoped variable and outer x would remain \"outer\".",
+      "concept": "var ignores block scope"
+    },
+    {
+      "id": "var-let-005",
+      "type": "quiz",
+      "difficulty": "hard",
+      "title": "Closure captures var — tricky timing",
+      "code": "var fns = [];\nfor (var i = 0; i < 3; i++) {\n  fns.push(() => i);\n}\nconsole.log(fns[0](), fns[1](), fns[2]());",
+      "options": ["0  1  2", "3  3  3", "0  0  0", "undefined x3"],
+      "answer": 1,
+      "explanation": "<b>Output: 3 3 3</b><br>All arrow functions share the SAME i (var is function-scoped). The loop runs to completion (i = 3) before any function is ever called. Every closure reads i = 3 at call time.",
+      "concept": "All closures share one var binding"
+    },
+    {
+      "id": "var-let-006",
+      "type": "quiz",
+      "difficulty": "hard",
+      "title": "let per-iteration binding",
+      "code": "var fns = [];\nfor (let i = 0; i < 3; i++) {\n  fns.push(() => i);\n}\nconsole.log(fns[0](), fns[1](), fns[2]());",
+      "options": ["3  3  3", "0  1  2", "undefined x3", "0  0  0"],
+      "answer": 1,
+      "explanation": "<b>Output: 0 1 2</b><br>let creates a fresh binding for each iteration. Each closure captures its own i. This is one of the most important differences between var and let in practice.",
+      "concept": "let creates a new binding per iteration"
+    }
+  ]
+}

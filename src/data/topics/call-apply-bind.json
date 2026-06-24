@@ -1,0 +1,71 @@
+{
+  "topic": "call-apply-bind",
+  "questions": [
+    {
+      "id": "call-apply-bind-001",
+      "type": "theory",
+      "level": 1,
+      "question": "What is the difference between call(), apply(), and bind()? When would you use each?",
+      "answer": "All three set the value of <b>this</b> explicitly, but differ in invocation:<br><br><b>call(ctx, arg1, arg2, ...)</b>: Invokes immediately. Arguments passed individually.<br><b>apply(ctx, [arg1, arg2])</b>: Invokes immediately. Arguments passed as an array.<br><b>bind(ctx, arg1, arg2)</b>: Returns a NEW function with this permanently bound. Does not invoke. Can also partially apply arguments.<br><br><b>When to use:</b><br>call — borrowing a method once, known argument count.<br>apply — borrowing a method, arguments already in array (e.g. Math.max.apply(null, arr)).<br>bind — callbacks, event handlers, anywhere a function needs a fixed this for later invocation.",
+      "code": "function greet(greeting, punct) {\n  return greeting + ', ' + this.name + punct;\n}\nconst user = { name: 'Alice' };\n\ngreet.call(user, 'Hello', '!');      // \"Hello, Alice!\"\ngreet.apply(user, ['Hi', '?']);      // \"Hi, Alice?\"\nconst boundGreet = greet.bind(user, 'Hey');\nboundGreet('.');                     // \"Hey, Alice.\"",
+      "tip": "In modern JS, spread (...arr) mostly replaces apply. But bind is still essential for callbacks and partial application.",
+      "followUps": ["Can you call .bind() twice? Does the second one override the first?", "How does bind relate to partial application?"],
+      "companies": ["Amazon", "Wipro", "TCS"]
+    },
+    {
+      "id": "call-apply-bind-002",
+      "type": "output",
+      "level": 2,
+      "question": "What is the output? Tests bind precedence and partial application.",
+      "answer": "<b>Output: 8 → 18 → 6</b><br><br>add5 = add with a=5 pre-filled. add5(1,2) = 5+1+2 = 8.<br>add5and10 = add5 with b=10 pre-filled. add5and10(3) = 5+10+3 = 18.<br>add.bind(null,1) pre-fills a=1. .bind(null,2) pre-fills b=2. (3) provides c=3. Result: 6.<br><br>Note: chained .bind() for pre-filling args works (partial application). But chaining bind to CHANGE this doesn't work — first bound this wins.",
+      "code": "function add(a, b, c) {\n  return a + b + c;\n}\nconst add5 = add.bind(null, 5);\nconst add5and10 = add5.bind(null, 10);\n\nconsole.log(add5(1, 2));\nconsole.log(add5and10(3));\nconsole.log(add.bind(null, 1).bind(null, 2)(3));",
+      "tip": "",
+      "followUps": ["Why can't you override 'this' with a second .bind()?", "What is the polyfill for Function.prototype.bind?"],
+      "companies": ["Google", "Meta", "Atlassian"]
+    },
+    {
+      "id": "call-apply-bind-003",
+      "type": "output",
+      "level": 2,
+      "question": "What prints? Classic bind vs call precedence.",
+      "answer": "<b>Output: \"Hi Alice\" → \"Hi Alice\" → \"Hi undefined\"</b><br><br>boundToAlice(): bound to alice → \"Hi Alice\".<br>boundToAlice.call(bob): .call tries to set this = bob, but bind is permanent — this is still alice → \"Hi Alice\". Bind CANNOT be overridden by call/apply.<br>new boundToAlice(): 'new' overrides bind (new has highest precedence). this = new object with no name → \"Hi undefined\".",
+      "code": "function sayHi() {\n  console.log('Hi', this.name);\n}\nconst alice = { name: 'Alice' };\nconst bob   = { name: 'Bob' };\n\nconst boundToAlice = sayHi.bind(alice);\nboundToAlice();\nboundToAlice.call(bob);\nnew boundToAlice();",
+      "tip": "The bind-cannot-be-overridden-by-call rule is directly asked at Flipkart and Razorpay.",
+      "followUps": ["Which has higher precedence: new or bind?", "What does 'new' return if the constructor returns an object?"],
+      "companies": ["Flipkart", "Razorpay", "Juspay"]
+    },
+    {
+      "id": "call-apply-bind-004",
+      "type": "implementation",
+      "level": 2,
+      "question": "Implement Function.prototype.bind from scratch.",
+      "answer": "Key points in the implementation:<br><br><b>Partial application</b>: presetArgs are merged with laterArgs on each call.<br><b>new compatibility</b>: If BoundFn is called with new, use new fn(...) instead of fn.apply(thisArg) — new takes precedence over bind.<br><b>Prototype chain</b>: BoundFn.prototype inherits from fn.prototype so instanceof works correctly.",
+      "code": "Function.prototype.myBind = function(thisArg, ...presetArgs) {\n  const fn = this; // the original function\n\n  if (typeof fn !== 'function') throw new TypeError('Not a function');\n\n  function BoundFn(...laterArgs) {\n    const allArgs = [...presetArgs, ...laterArgs];\n    // Handle 'new' — if called with new, this is a new object\n    if (this instanceof BoundFn) {\n      return new fn(...allArgs);\n    }\n    return fn.apply(thisArg, allArgs);\n  }\n\n  // Preserve prototype chain for 'new' compatibility\n  if (fn.prototype) {\n    BoundFn.prototype = Object.create(fn.prototype);\n  }\n\n  return BoundFn;\n};\n\nfunction greet(greeting) {\n  return greeting + ' ' + this.name;\n}\nconst hi = greet.myBind({ name: 'Alice' }, 'Hello');\nhi(); // \"Hello Alice\"",
+      "tip": "This exact question is asked at Google, Meta, and Stripe. The 'new' compatibility check is what separates good implementations from great ones.",
+      "followUps": ["How would you implement Function.prototype.call from scratch?", "How would you implement Function.prototype.apply?"],
+      "companies": ["Google", "Meta", "Stripe"]
+    },
+    {
+      "id": "call-apply-bind-005",
+      "type": "output",
+      "level": 3,
+      "question": "What is the output? Tests call with borrowed array methods.",
+      "answer": "<b>Output: true → [\"a\",\"b\",\"c\"] → [\"A\",\"B\",\"C\"]</b><br><br>Array.prototype.slice.call(arrayLike): slice only needs length and numeric keys — any array-like works. Returns a real Array.<br>Array.prototype.map.call(arrayLike): similarly, map only needs length and numeric keys. Transforms each element.<br><br>This is the classic \"method borrowing\" pattern — using Array methods on arguments objects, NodeLists, or any array-like.",
+      "code": "const arrayLike = { 0: 'a', 1: 'b', 2: 'c', length: 3 };\n\nconst arr = Array.prototype.slice.call(arrayLike);\nconsole.log(Array.isArray(arr));\nconsole.log(arr);\n\nconst upper = Array.prototype.map.call(arrayLike, x => x.toUpperCase());\nconsole.log(upper);",
+      "tip": "",
+      "followUps": ["How does this compare to Array.from(arrayLike)?", "Why doesn't arrayLike.map() work directly?"],
+      "companies": ["Google", "Adobe", "Atlassian"]
+    },
+    {
+      "id": "call-apply-bind-006",
+      "type": "theory",
+      "level": 3,
+      "question": "How does 'this' behave inside a bound function when used as a constructor? Why does 'new' override bind?",
+      "answer": "When a bound function is invoked with <b>new</b>, the 'new' operator creates a fresh object and sets that as this — ignoring the bound this entirely. This is by spec (ES5 §15.3.4.5).<br><br>Why? Because bind is designed for normal calls. new creates a new object that should inherit from the function's prototype — using the bound thisArg instead would break the object creation semantics.<br><br>The internal check in a bound function: if the call context is an instanceof the bound function, use new fn() semantics. Otherwise use the bound thisArg.",
+      "code": "",
+      "tip": "Knowing the spec reference (§15.3.4.5) and the internal instanceof check is an A+ answer at any top company.",
+      "followUps": ["What is [[BoundThis]] and [[BoundArguments]] in the spec?", "Can you use arrow functions with new?"],
+      "companies": ["Meta", "Netflix", "Shopify"]
+    }
+  ]
+}

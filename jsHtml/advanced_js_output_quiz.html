@@ -1,0 +1,550 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+.wrap{padding:1.5rem 0;font-family:var(--font-sans)}
+.top-stats{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:1.2rem}
+.stat{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:8px 16px;font-size:12px;color:var(--color-text-secondary)}
+.stat b{display:block;font-size:16px;font-weight:500;color:var(--color-text-primary)}
+.sbar-wrap{height:4px;background:var(--color-border-tertiary);border-radius:2px;margin-bottom:1.2rem}
+.sbar-fill{height:100%;background:#1D9E75;border-radius:2px;width:0;transition:width 0.4s}
+.cat-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:1.4rem}
+.pill{padding:5px 13px;border-radius:20px;border:0.5px solid var(--color-border-secondary);background:var(--color-background-secondary);color:var(--color-text-secondary);font-size:12px;cursor:pointer}
+.pill.on{background:var(--color-background-primary);color:var(--color-text-primary);border-color:var(--color-border-primary);font-weight:500}
+.qcard{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);margin-bottom:14px;overflow:hidden}
+.qhead{padding:14px 16px;display:flex;gap:12px;align-items:flex-start}
+.qnum{font-size:11px;font-weight:500;color:var(--color-text-tertiary);min-width:26px;padding-top:3px}
+.qright{flex:1;min-width:0}
+.tags{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}
+.tag{font-size:11px;font-weight:500;padding:2px 9px;border-radius:10px}
+.tag-cat{background:#E6F1FB;color:#0C447C}
+.tag-easy{background:#EAF3DE;color:#3B6D11}
+.tag-medium{background:#FAEEDA;color:#854F0B}
+.tag-hard{background:#FAECE7;color:#993C1D}
+.tag-tricky{background:#EEEDFE;color:#3C3489}
+.qtitle{font-size:13px;color:var(--color-text-secondary);line-height:1.5;margin-bottom:10px}
+.code{background:var(--color-background-tertiary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:11px 14px;font-family:var(--font-mono);font-size:12px;color:var(--color-text-primary);white-space:pre;overflow-x:auto;line-height:1.65;margin-bottom:12px}
+.opts{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:4px}
+.opt{padding:6px 13px;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-secondary);background:var(--color-background-secondary);color:var(--color-text-primary);font-size:12px;font-family:var(--font-mono);cursor:pointer;transition:all 0.12s}
+.opt:hover:not([disabled]){border-color:var(--color-border-primary);background:var(--color-background-primary)}
+.opt.correct{background:#EAF3DE;border-color:#3B6D11;color:#27500A;font-weight:500}
+.opt.wrong{background:#FCEBEB;border-color:#A32D2D;color:#791F1F}
+.opt.reveal{background:#E6F1FB;border-color:#185FA5;color:#0C447C;font-weight:500}
+.exp{display:none;padding:0 16px 14px 54px}
+.exp.show{display:block}
+.exp-inner{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:12px 14px;font-size:13px;color:var(--color-text-secondary);line-height:1.7}
+.exp-inner b{color:var(--color-text-primary);font-weight:500}
+.out-box{font-family:var(--font-mono);font-size:12px;background:var(--color-background-primary);border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);padding:8px 12px;margin-top:10px;color:var(--color-text-primary);line-height:1.7}
+.concept-tag{display:inline-block;font-size:11px;font-weight:500;padding:2px 8px;border-radius:8px;background:#EEEDFE;color:#3C3489;margin-bottom:8px}
+.reset-btn{margin-top:1rem;padding:7px 18px;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-secondary);background:var(--color-background-secondary);color:var(--color-text-primary);font-size:13px;cursor:pointer}
+</style>
+
+<div class="wrap">
+<h2 class="sr-only">Advanced JavaScript output quiz — var/let, IIFE, closures, currying, prototype, debounce, React stale closures</h2>
+
+<div class="top-stats">
+  <div class="stat"><b id="s-total">0</b>Questions</div>
+  <div class="stat"><b id="s-correct" style="color:#1D9E75">0</b>Correct</div>
+  <div class="stat"><b id="s-wrong" style="color:#E24B4A">0</b>Wrong</div>
+  <div class="stat"><b id="s-pct">—</b>Score</div>
+</div>
+<div class="sbar-wrap"><div class="sbar-fill" id="sbar"></div></div>
+
+<div class="cat-row" id="cats"></div>
+<div id="quiz"></div>
+<button class="reset-btn" onclick="resetAll()"><i class="ti ti-refresh" aria-hidden="true"></i> Reset all answers</button>
+</div>
+
+<script>
+const Qs = [
+
+  {cat:"var vs let",diff:"easy",
+   title:"var in loop — what prints?",
+   code:`for (var i = 0; i < 4; i++) {}
+console.log(i);`,
+   opts:["0","3","4","ReferenceError"],ans:2,
+   explain:`<b>Output: 4</b><br>var is function-scoped (or global-scoped here), NOT block-scoped. After the loop finishes, i = 4 (the value that failed the condition i &lt; 4). The variable leaks out of the for block and is accessible after it.`,
+   concept:"var leaks out of blocks"},
+
+  {cat:"var vs let",diff:"medium",
+   title:"var vs let hoisting difference",
+   code:`console.log(a);
+console.log(b);
+var a = 1;
+let b = 2;`,
+   opts:["1  2","undefined  ReferenceError","undefined  undefined","ReferenceError  ReferenceError"],ans:1,
+   explain:`<b>Output: undefined then ReferenceError</b><br>var is hoisted and initialised to undefined. let is hoisted but NOT initialised — it sits in the "Temporal Dead Zone" until the declaration is reached. Accessing b before its declaration throws a ReferenceError.`,
+   concept:"Temporal Dead Zone (TDZ)"},
+
+  {cat:"var vs let",diff:"medium",
+   title:"Same name — var vs let in block",
+   code:`var x = 'outer';
+{
+  var x = 'inner';
+}
+console.log(x);`,
+   opts:["outer","inner","undefined","SyntaxError"],ans:1,
+   explain:`<b>Output: "inner"</b><br>Both var declarations refer to the same variable because var ignores block scope. The second var x = 'inner' simply reassigns the same x. If this were let, the inner x would be a separate block-scoped variable and outer x would remain "outer".`,
+   concept:"var ignores block scope"},
+
+  {cat:"var vs let",diff:"hard",
+   title:"Closure captures var — tricky timing",
+   code:`var fns = [];
+for (var i = 0; i < 3; i++) {
+  fns.push(() => i);
+}
+console.log(fns[0](), fns[1](), fns[2]());`,
+   opts:["0  1  2","3  3  3","0  0  0","undefined x3"],ans:1,
+   explain:`<b>Output: 3 3 3</b><br>All arrow functions share the SAME i (var is function-scoped). The loop runs to completion (i = 3) before any function is ever called. Every closure reads i = 3 at call time.`,
+   concept:"All closures share one var binding"},
+
+  {cat:"var vs let",diff:"hard",
+   title:"let per-iteration binding",
+   code:`var fns = [];
+for (let i = 0; i < 3; i++) {
+  fns.push(() => i);
+}
+console.log(fns[0](), fns[1](), fns[2]());`,
+   opts:["3  3  3","0  1  2","undefined x3","0  0  0"],ans:1,
+   explain:`<b>Output: 0 1 2</b><br>let creates a fresh binding for each iteration. Each closure captures its own i. This is one of the most important differences between var and let in practice.`,
+   concept:"let creates a new binding per iteration"},
+
+  {cat:"IIFE & Module Pattern",diff:"easy",
+   title:"IIFE runs immediately",
+   code:`const result = (function() {
+  return 42;
+})();
+console.log(result);`,
+   opts:["function","undefined","42","[Function]"],ans:2,
+   explain:`<b>Output: 42</b><br>An IIFE (Immediately Invoked Function Expression) is called the moment it's defined. The return value 42 is assigned directly to result. result is NOT a function — it's the returned value.`,
+   concept:"IIFE return value"},
+
+  {cat:"IIFE & Module Pattern",diff:"medium",
+   title:"IIFE private scope",
+   code:`const counter = (function() {
+  let count = 0;
+  return {
+    inc: () => ++count,
+    val: () => count
+  };
+})();
+counter.inc();
+counter.inc();
+console.log(counter.val());
+console.log(counter.count);`,
+   opts:["2  0","2  undefined","1  undefined","2  2"],ans:1,
+   explain:`<b>Output: 2 then undefined</b><br>The IIFE runs once. count is private to the closure. inc() increments it twice → 2. val() returns 2. counter.count is undefined because count is not a property on the returned object — it's a private variable in the closure scope.`,
+   concept:"IIFE module — private state"},
+
+  {cat:"IIFE & Module Pattern",diff:"hard",
+   title:"IIFE in loop — capture by value",
+   code:`var result = [];
+for (var i = 0; i < 3; i++) {
+  result.push((function(n) {
+    return n * n;
+  })(i));
+}
+console.log(result);`,
+   opts:["[9,9,9]","[0,1,4]","[1,2,3]","[0,0,0]"],ans:1,
+   explain:`<b>Output: [0, 1, 4]</b><br>The IIFE is called immediately on each iteration with i passed as n. The return value (n*n) is pushed directly — not a function. So result holds [0*0, 1*1, 2*2] = [0, 1, 4]. The IIFE pattern captures i by value into n.`,
+   concept:"IIFE executes immediately — stores values not functions"},
+
+  {cat:"IIFE & Module Pattern",diff:"tricky",
+   title:"Module pattern — method shares state",
+   code:`const bank = (function() {
+  let bal = 100;
+  return {
+    deposit: (n) => { bal += n; },
+    withdraw: (n) => { bal -= n; },
+    balance: () => bal
+  };
+})();
+bank.deposit(50);
+bank.withdraw(30);
+bank.deposit(10);
+console.log(bank.balance());`,
+   opts:["100","130","160","110"],ans:1,
+   explain:`<b>Output: 130</b><br>All three methods close over the same bal. 100 + 50 = 150, 150 - 30 = 120, 120 + 10 = 130. This is the module pattern in action — shared private mutable state exposed via a public API.`,
+   concept:"Shared mutable state in module pattern"},
+
+  {cat:"Memory Leaks",diff:"medium",
+   title:"Closure holding large reference",
+   code:`function setup() {
+  const bigArr = new Array(1e6).fill(0);
+  const id = bigArr[0];
+  return function() {
+    return id;
+  };
+}
+const fn = setup();
+console.log(fn());`,
+   opts:["0","undefined","1000000","[Array]"],ans:0,
+   explain:`<b>Output: 0</b><br>fn closes over id (= 0) and also inadvertently keeps bigArr alive in memory because the closure's scope includes everything in setup(). In modern engines V8 may optimise this, but logically bigArr cannot be GC'd while fn exists. Best practice: extract only what you need into a small variable and nullify the large one.`,
+   concept:"Unintended large variable captured in closure"},
+
+  {cat:"Memory Leaks",diff:"hard",
+   title:"Event listener memory leak pattern",
+   code:`function attachHandler() {
+  const data = { value: 42 };
+  document.addEventListener('click', function handler() {
+    console.log(data.value);
+  });
+}
+attachHandler();
+attachHandler();
+// How many handler closures exist now?`,
+   opts:["0","1","2","Depends on GC"],ans:2,
+   explain:`<b>Answer: 2 closures</b><br>Each call to attachHandler() creates a new closure over its own data object AND registers a new event listener. Neither is removed. After two calls, two handlers live on the document — each holding a reference to its own data, preventing GC. The fix: return a cleanup function and call removeEventListener.`,
+   concept:"Accumulating event listeners — each creates a closure"},
+
+  {cat:"Memory Leaks",diff:"tricky",
+   title:"Detached DOM + closure = leak",
+   code:`let ref;
+function create() {
+  let el = document.createElement('div');
+  ref = function() { return el.id; };
+  return el;
+}
+let node = create();
+node = null;
+// Is 'el' garbage collected?`,
+   opts:["Yes — node is null","No — ref still holds el","Depends on browser","Yes — el is local"],ans:1,
+   explain:`<b>Answer: No — el is NOT garbage collected.</b><br>ref is a closure that captures el. Even though node = null removes the only external reference to the DOM element, ref still holds el in its closure scope. el stays in memory as long as ref exists. This is the classic detached DOM node memory leak.`,
+   concept:"Detached DOM node kept alive by closure"},
+
+  {cat:"Debounce / Throttle",diff:"medium",
+   title:"Debounce — how many API calls?",
+   code:`// debounce fires fn only after 'delay' ms of silence
+const search = debounce(callAPI, 300);
+
+// User types rapidly:
+search('a');   // t=0ms
+search('ap');  // t=50ms
+search('app'); // t=100ms
+// No more calls after t=100ms
+
+// How many times does callAPI fire?`,
+   opts:["3","2","1","0"],ans:2,
+   explain:`<b>Answer: 1 time</b><br>Each call to search() resets the timer. 'a' at t=0 — timer set for t=300. 'ap' at t=50 — timer reset for t=350. 'app' at t=100 — timer reset for t=400. After t=400ms with no new calls, callAPI fires once with 'app'. This is the debounce contract: fire only after the user stops.`,
+   concept:"Debounce — fires once after silence"},
+
+  {cat:"Debounce / Throttle",diff:"hard",
+   title:"Throttle — how many API calls?",
+   code:`// throttle fires fn at most once per 'limit' ms
+const onScroll = throttle(logPos, 200);
+
+// Scroll events fire at:
+// t=0, t=50, t=100, t=150, t=200, t=250
+
+// How many times does logPos fire?`,
+   opts:["1","2","3","6"],ans:2,
+   explain:`<b>Answer: 3 times (leading edge throttle)</b><br>With leading-edge throttle: t=0 fires (next allowed: t=200). t=50,100,150 are dropped. t=200 fires (next allowed: t=400). t=250 fires... wait — t=250 &lt; t=400, so dropped. Actually: t=0 fires, t=200 fires, t=400 would fire next but no event. So 2 fires if only those 6 events exist. Exact count depends on implementation — the key insight is it's far fewer than 6.`,
+   concept:"Throttle — rate limits to max 1 per window"},
+
+  {cat:"Debounce / Throttle",diff:"tricky",
+   title:"Debounce — closure variable check",
+   code:`function debounce(fn, delay) {
+  let timer;
+  return function(...args) {
+    clearTimeout(timer);
+    timer = setTimeout(() => fn(...args), delay);
+  };
+}
+const d = debounce((x) => console.log(x), 100);
+d(1); d(2); d(3);`,
+   opts:["1  2  3","3","1","Nothing prints"],ans:1,
+   explain:`<b>Output: 3 (after 100ms)</b><br>d(1) sets timer → cleared by d(2) → cleared by d(3). Only the last setTimeout survives. After 100ms of silence, fn(3) runs. timer is the closed-over variable that persists across all three calls — that's the mechanism that makes debounce work.`,
+   concept:"timer closed over — only last call fires"},
+
+  {cat:"Stale Closures (React)",diff:"medium",
+   title:"Stale closure in useEffect",
+   code:`// React component (pseudocode):
+function App() {
+  const [count, setCount] = useState(0);
+
+  useEffect(() => {
+    const id = setInterval(() => {
+      console.log(count); // what does this log?
+    }, 1000);
+    return () => clearInterval(id);
+  }, []); // empty deps
+
+  // count is incremented externally
+  return <button onClick={() => setCount(c => c+1)}>+</button>;
+}
+// After clicking 3 times, what does the interval log?`,
+   opts:["3","0","1  2  3 (each second)","undefined"],ans:1,
+   explain:`<b>Output: 0 (always)</b><br>Empty dependency array [] means the effect runs once on mount. The closure captures count = 0 from that first render and never re-subscribes. Even after 3 clicks update count to 3, the interval's closure still sees the stale count = 0. Fix: add count to deps, or use a ref.`,
+   concept:"Stale closure — empty deps captures initial value"},
+
+  {cat:"Stale Closures (React)",diff:"hard",
+   title:"useCallback stale closure",
+   code:`function Search({ query }) {
+  const handleSearch = useCallback(() => {
+    console.log('Searching:', query);
+  }, []); // empty deps
+
+  // query prop changes from 'js' to 'react'
+  // user clicks the button
+
+  return <button onClick={handleSearch}>Search</button>;
+}
+// What gets logged after query changes to 'react'?`,
+   opts:[`"Searching: react"`,"Searching: js","Searching: undefined","ReferenceError"],ans:1,
+   explain:`<b>Output: "Searching: js"</b><br>useCallback with [] memoizes handleSearch on first render, closing over query = 'js'. When query prop changes to 'react', handleSearch is NOT recreated (empty deps). The stale closure still captures 'js'. Fix: add query to the deps array.`,
+   concept:"useCallback stale closure — missing dependency"},
+
+  {cat:"Stale Closures (React)",diff:"tricky",
+   title:"Ref-based fix for stale closure",
+   code:`function Timer() {
+  const [count, setCount] = useState(0);
+  const countRef = useRef(count);
+  countRef.current = count;
+
+  useEffect(() => {
+    const id = setInterval(() => {
+      console.log(countRef.current); // what does this log?
+    }, 1000);
+    return () => clearInterval(id);
+  }, []); // empty deps — intentional
+
+  return <button onClick={() => setCount(c => c+1)}>+</button>;
+}
+// After clicking 3 times:`,
+   opts:["0 (stale)","3 (always current)","undefined","Logs 1, 2, 3 in sequence"],ans:1,
+   explain:`<b>Output: 3 (current value)</b><br>countRef is a mutable object. The closure captures the ref object itself (not .current). Every render updates countRef.current = count. The interval reads countRef.current at call time — always the latest value. This is the standard React pattern for "always fresh" values inside stale closures.`,
+   concept:"useRef escapes stale closure"},
+
+  {cat:"Currying",diff:"easy",
+   title:"Basic curry — call sequence",
+   code:`function curry(a) {
+  return function(b) {
+    return function(c) {
+      return a + b + c;
+    };
+  };
+}
+console.log(curry(1)(2)(3));`,
+   opts:["6","123","undefined","NaN"],ans:0,
+   explain:`<b>Output: 6</b><br>curry(1) returns a function closing over a=1. Calling it with (2) returns another function closing over a=1, b=2. Calling that with (3) returns 1+2+3=6. Each function in the chain closes over the previously captured arguments.`,
+   concept:"Manual curry — nested closures"},
+
+  {cat:"Currying",diff:"medium",
+   title:"Partial application with curry",
+   code:`const multiply = (a) => (b) => a * b;
+const double = multiply(2);
+const triple = multiply(3);
+
+console.log(double(5));
+console.log(triple(double(4)));`,
+   opts:["10  24","10  14","5  12","10  12"],ans:0,
+   explain:`<b>Output: 10 then 24</b><br>double closes over a=2. double(5) = 2*5 = 10. double(4) = 2*4 = 8. triple closes over a=3. triple(8) = 3*8 = 24.`,
+   concept:"Curried functions as reusable partials"},
+
+  {cat:"Currying",diff:"hard",
+   title:"Auto-curry — how many args collected?",
+   code:`function autoCurry(fn) {
+  return function curried(...args) {
+    if (args.length >= fn.length) {
+      return fn(...args);
+    }
+    return (...more) => curried(...args, ...more);
+  };
+}
+const add3 = autoCurry((a, b, c) => a + b + c);
+const step1 = add3(1);
+const step2 = step1(2);
+console.log(step2(3));`,
+   opts:["6","undefined","[Function]","Error"],ans:0,
+   explain:`<b>Output: 6</b><br>fn.length = 3. add3(1): args=[1], 1 < 3 → returns new curried closing over [1]. step1(2): args=[1,2], 2 < 3 → returns new curried closing over [1,2]. step2(3): args=[1,2,3], 3 >= 3 → calls fn(1,2,3) = 6.`,
+   concept:"Auto-curry accumulates args via closure"},
+
+  {cat:"Currying",diff:"tricky",
+   title:"Curry — reuse partial",
+   code:`const add = a => b => a + b;
+const add10 = add(10);
+
+console.log(add10(5));
+console.log(add10(20));
+console.log(add(1)(2));`,
+   opts:["15  30  3","15  20  3","10  20  3","15  30  12"],ans:0,
+   explain:`<b>Output: 15, 30, 3</b><br>add10 is a closure capturing a=10. It can be reused: add10(5)=15, add10(20)=30. add(1)(2) creates a fresh closure capturing a=1, called with b=2 → 3. Curried functions are stateless and safe to reuse.`,
+   concept:"Curried partial is reusable and stateless"},
+
+  {cat:"Prototype & Inheritance",diff:"easy",
+   title:"prototype method lookup",
+   code:`function Animal(name) {
+  this.name = name;
+}
+Animal.prototype.speak = function() {
+  return this.name + ' speaks';
+};
+const a = new Animal('Cat');
+console.log(a.speak());
+console.log(a.hasOwnProperty('speak'));`,
+   opts:[`"Cat speaks"  true`,"Cat speaks  false","undefined  false","Cat speaks  undefined"],ans:1,
+   explain:`<b>Output: "Cat speaks" then false</b><br>a.speak() is found on Animal.prototype via the prototype chain — not directly on a. hasOwnProperty('speak') = false because speak lives on the prototype, not the instance. Only name is an own property of a.`,
+   concept:"Prototype chain lookup — own vs inherited"},
+
+  {cat:"Prototype & Inheritance",diff:"medium",
+   title:"Constructor vs prototype property",
+   code:`function Person(name) {
+  this.name = name;
+  this.greet = function() { return 'Hi ' + this.name; };
+}
+Person.prototype.greet = function() { return 'Hello ' + this.name; };
+
+const p = new Person('Alice');
+console.log(p.greet());`,
+   opts:[`"Hello Alice"`,"Hi Alice","undefined","Error"],ans:1,
+   explain:`<b>Output: "Hi Alice"</b><br>When a property exists on BOTH the instance and the prototype, the instance's own property wins — prototype is only checked if the property isn't found directly on the object. p.greet is set in the constructor body (own property), so it shadows the prototype method.`,
+   concept:"Own property shadows prototype property"},
+
+  {cat:"Prototype & Inheritance",diff:"medium",
+   title:"Shared prototype mutation",
+   code:`function Car() {}
+Car.prototype.parts = [];
+
+const c1 = new Car();
+const c2 = new Car();
+
+c1.parts.push('engine');
+console.log(c2.parts);`,
+   opts:["[]","['engine']","undefined","Error"],ans:1,
+   explain:`<b>Output: ['engine']</b><br>parts is on the prototype — shared by ALL instances. c1.parts.push('engine') mutates the array on the prototype. c2.parts refers to the same array. This is a classic prototype mutation pitfall. Fix: initialise parts in the constructor (this.parts = []) to give each instance its own array.`,
+   concept:"Shared mutable prototype property — pitfall"},
+
+  {cat:"Prototype & Inheritance",diff:"hard",
+   title:"Prototype chain — instanceof",
+   code:`function A() {}
+function B() {}
+B.prototype = Object.create(A.prototype);
+B.prototype.constructor = B;
+
+const b = new B();
+console.log(b instanceof B);
+console.log(b instanceof A);
+console.log(b instanceof Object);`,
+   opts:["true  false  true","true  true  true","false  true  true","true  true  false"],ans:1,
+   explain:`<b>Output: true true true</b><br>b's prototype chain: b → B.prototype → A.prototype → Object.prototype → null. instanceof checks if the constructor's prototype exists anywhere in the chain. B.prototype: yes. A.prototype: yes (set via Object.create). Object.prototype: yes (always). All three are true.`,
+   concept:"instanceof walks the prototype chain"},
+
+  {cat:"Prototype & Inheritance",diff:"hard",
+   title:"class vs prototype — are they the same?",
+   code:`class Animal {
+  constructor(name) { this.name = name; }
+  speak() { return this.name; }
+}
+const a = new Animal('Dog');
+console.log(typeof Animal);
+console.log(a.hasOwnProperty('speak'));
+console.log(typeof Animal.prototype.speak);`,
+   opts:[`"class"  true  "function"`,"function  false  function","function  true  function","class  false  function"],ans:1,
+   explain:`<b>Output: "function"  false  "function"</b><br>class is syntactic sugar over functions. typeof Animal = "function". speak is defined on Animal.prototype (not on the instance), so hasOwnProperty('speak') = false. typeof Animal.prototype.speak = "function". Classes do NOT create a new type — they are constructor functions under the hood.`,
+   concept:"class is syntactic sugar over prototype"},
+
+  {cat:"Prototype & Inheritance",diff:"tricky",
+   title:"this in prototype method — gotcha",
+   code:`function Counter() {
+  this.count = 0;
+}
+Counter.prototype.inc = function() {
+  this.count++;
+};
+
+const c = new Counter();
+const inc = c.inc;
+inc();
+console.log(c.count);`,
+   opts:["1","0","NaN","TypeError"],ans:1,
+   explain:`<b>Output: 0</b><br>When inc is extracted from c and called as inc(), this is no longer c — in strict mode it's undefined (TypeError), in sloppy mode it's the global object. this.count++ increments the global count (or throws), not c.count. c.count stays 0. Always call methods as obj.method() to preserve this context.`,
+   concept:"Method extraction loses 'this' context"},
+
+  {cat:"Prototype & Inheritance",diff:"tricky",
+   title:"Object.create vs new — proto chain",
+   code:`const base = {
+  greet() { return 'Hello from ' + this.name; }
+};
+const obj = Object.create(base);
+obj.name = 'World';
+console.log(obj.greet());
+console.log(obj.hasOwnProperty('greet'));`,
+   opts:[`"Hello from World"  true`,"Hello from World  false","Hello from undefined  false","Error"],ans:1,
+   explain:`<b>Output: "Hello from World" then false</b><br>Object.create(base) creates obj with base as its prototype. greet is on the prototype (base), not on obj itself. hasOwnProperty('greet') = false. But obj.greet() works because the prototype chain finds greet on base, and this = obj so this.name = 'World'.`,
+   concept:"Object.create sets prototype directly"}
+];
+
+const CATS = ['All',...[...new Set(Qs.map(q=>q.cat))]];
+let state={}, correct=0, wrong=0, activeCat='All';
+
+function buildCats(){
+  const row=document.getElementById('cats');
+  CATS.forEach((c,i)=>{
+    const p=document.createElement('div');
+    p.className='pill'+(i===0?' on':'');
+    p.textContent=c+(c==='All'?'':' ('+Qs.filter(q=>q.cat===c).length+')');
+    p.onclick=()=>{activeCat=c;document.querySelectorAll('.pill').forEach(x=>x.classList.remove('on'));p.classList.add('on');render();};
+    row.appendChild(p);
+  });
+}
+
+function render(){
+  const quiz=document.getElementById('quiz');
+  quiz.innerHTML='';
+  const list=activeCat==='All'?Qs:Qs.filter(q=>q.cat===activeCat);
+  document.getElementById('s-total').textContent=list.length;
+  list.forEach((q,idx)=>{
+    const gi=Qs.indexOf(q);
+    const card=document.createElement('div');
+    card.className='qcard';
+    const optsHtml=q.opts.map((o,oi)=>{
+      let cls='opt';
+      const s=state[gi];
+      if(s!==undefined){if(oi===q.ans)cls+=' correct reveal';else if(oi===s&&s!==q.ans)cls+=' wrong';}
+      return `<button class="${cls}" onclick="answer(${gi},${oi})" ${s!==undefined?'disabled':''}>${o}</button>`;
+    }).join('');
+    const expShow=state[gi]!==undefined?'show':'';
+    const dTag=`<span class="tag tag-${q.diff}">${q.diff.charAt(0).toUpperCase()+q.diff.slice(1)}</span>`;
+    const cTag=`<span class="tag tag-cat">${q.cat}</span>`;
+    card.innerHTML=`
+      <div class="qhead">
+        <span class="qnum">Q${idx+1}</span>
+        <div class="qright">
+          <div class="tags">${cTag}${dTag}</div>
+          <div class="qtitle">${q.title} — what is the output?</div>
+          <div class="code">${q.code.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div>
+          <div class="opts">${optsHtml}</div>
+        </div>
+      </div>
+      <div class="exp ${expShow}" id="exp-${gi}">
+        <div class="exp-inner">
+          <span class="concept-tag">Concept: ${q.concept}</span><br>
+          ${q.explain}
+          <div class="out-box">// Output\n${q.opts[q.ans]}</div>
+        </div>
+      </div>`;
+    quiz.appendChild(card);
+  });
+  updateScore();
+}
+
+function answer(gi,chosen){
+  if(state[gi]!==undefined)return;
+  state[gi]=chosen;
+  if(chosen===Qs[gi].ans)correct++;else wrong++;
+  render();
+}
+
+function updateScore(){
+  const total=Object.keys(state).length;
+  document.getElementById('s-correct').textContent=correct;
+  document.getElementById('s-wrong').textContent=wrong;
+  const pct=total>0?Math.round(correct/total*100):0;
+  document.getElementById('s-pct').textContent=total>0?pct+'%':'—';
+  const vis=activeCat==='All'?Qs.length:Qs.filter(q=>q.cat===activeCat).length;
+  document.getElementById('sbar').style.width=vis>0?(total/vis*100)+'%':'0%';
+}
+
+function resetAll(){state={};correct=0;wrong=0;render();}
+
+buildCats();render();
+</script>

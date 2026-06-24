@@ -1,0 +1,456 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+.wrap{padding:1.5rem 0;font-family:var(--font-sans)}
+.stats-row{display:flex;gap:10px;margin-bottom:1.5rem;flex-wrap:wrap}
+.stat{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:8px 16px;font-size:12px;color:var(--color-text-secondary)}
+.stat b{display:block;font-size:16px;font-weight:500;color:var(--color-text-primary)}
+.filter-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:1.5rem}
+.pill{padding:5px 14px;border-radius:20px;border:0.5px solid var(--color-border-secondary);background:var(--color-background-secondary);color:var(--color-text-secondary);font-size:13px;cursor:pointer}
+.pill.on{background:var(--color-background-primary);color:var(--color-text-primary);border-color:var(--color-border-primary);font-weight:500}
+.qcard{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);margin-bottom:14px;overflow:hidden}
+.qhead{padding:14px 16px;display:flex;gap:12px;align-items:flex-start}
+.qnum{font-size:11px;font-weight:500;color:var(--color-text-tertiary);min-width:26px;padding-top:2px}
+.qright{flex:1}
+.difficulty{display:inline-block;font-size:11px;font-weight:500;padding:2px 9px;border-radius:10px;margin-bottom:8px}
+.d-easy{background:#EAF3DE;color:#3B6D11}
+.d-medium{background:#FAEEDA;color:#854F0B}
+.d-hard{background:#FAECE7;color:#993C1D}
+.d-tricky{background:#EEEDFE;color:#3C3489}
+.qtitle{font-size:13px;color:var(--color-text-secondary);margin-bottom:8px;line-height:1.5}
+.code{background:var(--color-background-tertiary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:12px 14px;font-family:var(--font-mono);font-size:12px;color:var(--color-text-primary);white-space:pre;overflow-x:auto;line-height:1.65;margin-bottom:12px}
+.guess-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px}
+.opt{padding:6px 14px;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-secondary);background:var(--color-background-secondary);color:var(--color-text-primary);font-size:13px;font-family:var(--font-mono);cursor:pointer;transition:all 0.12s}
+.opt:hover{border-color:var(--color-border-primary);background:var(--color-background-primary)}
+.opt.correct{background:#EAF3DE;border-color:#3B6D11;color:#27500A;font-weight:500}
+.opt.wrong{background:#FCEBEB;border-color:#A32D2D;color:#791F1F}
+.opt.reveal{background:#E6F1FB;border-color:#185FA5;color:#0C447C;font-weight:500}
+.opt:disabled{cursor:default}
+.explain{display:none;padding:0 16px 14px 54px}
+.explain.show{display:block}
+.explain-inner{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:12px 14px;font-size:13px;color:var(--color-text-secondary);line-height:1.7}
+.explain-inner b{color:var(--color-text-primary);font-weight:500}
+.output-box{font-family:var(--font-mono);font-size:12px;background:var(--color-background-primary);border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);padding:8px 12px;margin-top:8px;color:var(--color-text-primary);line-height:1.7}
+.tip-tag{display:inline-block;font-size:11px;font-weight:500;padding:2px 8px;border-radius:8px;background:#E6F1FB;color:#0C447C;margin-bottom:6px}
+.score-bar{height:4px;background:var(--color-border-tertiary);border-radius:2px;margin-bottom:1.5rem;overflow:hidden}
+.score-fill{height:100%;background:#1D9E75;border-radius:2px;width:0;transition:width 0.4s}
+.reset-btn{margin-top:1rem;padding:7px 18px;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-secondary);background:var(--color-background-secondary);color:var(--color-text-primary);font-size:13px;cursor:pointer}
+</style>
+
+<div class="wrap">
+<h2 class="sr-only">JavaScript Closures — Output-based quiz questions</h2>
+
+<div class="stats-row">
+  <div class="stat"><b id="s-total">0</b>Total Qs</div>
+  <div class="stat"><b id="s-correct" style="color:#1D9E75">0</b>Correct</div>
+  <div class="stat"><b id="s-wrong" style="color:#E24B4A">0</b>Wrong</div>
+  <div class="stat"><b id="s-pct">—</b>Score</div>
+</div>
+
+<div class="score-bar"><div class="score-fill" id="sbar"></div></div>
+
+<div class="filter-row">
+  <div class="pill on" onclick="filter('all',this)">All</div>
+  <div class="pill" onclick="filter('easy',this)">Easy</div>
+  <div class="pill" onclick="filter('medium',this)">Medium</div>
+  <div class="pill" onclick="filter('hard',this)">Hard</div>
+  <div class="pill" onclick="filter('tricky',this)">Tricky</div>
+</div>
+
+<div id="quiz"></div>
+<button class="reset-btn" onclick="resetAll()"><i class="ti ti-refresh" aria-hidden="true"></i> Reset all answers</button>
+</div>
+
+<script>
+const Qs = [
+  {
+    diff:"easy",
+    title:"Basic closure variable access",
+    code:`function outer() {
+  let x = 10;
+  function inner() {
+    console.log(x);
+  }
+  inner();
+}
+outer();`,
+    opts:["10","undefined","ReferenceError","null"],
+    ans:0,
+    explain:`<b>Output: 10</b><br>inner() is defined inside outer(), so it has access to outer's lexical scope. x is 10 at the time inner() is called. This is the most basic form of a closure.`,
+    concept:"Lexical scope access"
+  },
+  {
+    diff:"easy",
+    title:"Returned closure retains value",
+    code:`function makeGreeter(name) {
+  return function() {
+    console.log("Hello, " + name);
+  };
+}
+const greet = makeGreeter("Alice");
+greet();`,
+    opts:[`"Hello, Alice"`,"Hello, undefined","ReferenceError","Hello, name"],
+    ans:0,
+    explain:`<b>Output: Hello, Alice</b><br>makeGreeter returns a function that closes over name. Even after makeGreeter has returned, the inner function still holds a reference to name = "Alice" in its closure scope.`,
+    concept:"Closed-over argument"
+  },
+  {
+    diff:"easy",
+    title:"Independent closure instances",
+    code:`function counter() {
+  let n = 0;
+  return () => ++n;
+}
+const a = counter();
+const b = counter();
+a(); a();
+console.log(b());`,
+    opts:["1","2","3","undefined"],
+    ans:0,
+    explain:`<b>Output: 1</b><br>a and b are completely independent closures — each call to counter() creates a new execution context with its own n. a's calls increment a's n (now 2). b() increments b's own n from 0 to 1.`,
+    concept:"Independent closure instances"
+  },
+  {
+    diff:"medium",
+    title:"Classic var loop trap",
+    code:`for (var i = 0; i < 3; i++) {
+  setTimeout(() => console.log(i), 0);
+}`,
+    opts:["0 1 2","3 3 3","0 0 0","1 2 3"],
+    ans:1,
+    explain:`<b>Output: 3 3 3</b><br>var is function-scoped — all three closures share the exact same i variable. By the time setTimeout callbacks run (after the loop), i has already been incremented to 3. All three closures read 3.`,
+    concept:"var hoisting + shared closure"
+  },
+  {
+    diff:"medium",
+    title:"let loop — does it change?",
+    code:`for (let i = 0; i < 3; i++) {
+  setTimeout(() => console.log(i), 0);
+}`,
+    opts:["3 3 3","0 0 0","0 1 2","1 2 3"],
+    ans:2,
+    explain:`<b>Output: 0 1 2</b><br>let is block-scoped. Each loop iteration creates a brand new binding of i — a separate variable in its own block scope. Each closure captures its own copy: 0, 1, 2.`,
+    concept:"let block scope per iteration"
+  },
+  {
+    diff:"medium",
+    title:"Closure mutation — shared reference",
+    code:`function makeAdder() {
+  let sum = 0;
+  return {
+    add: (n) => { sum += n; },
+    get: () => sum
+  };
+}
+const adder = makeAdder();
+adder.add(5);
+adder.add(3);
+console.log(adder.get());`,
+    opts:["5","3","8","0"],
+    ans:2,
+    explain:`<b>Output: 8</b><br>Both add and get close over the same sum variable. add(5) mutates sum → 5, add(3) mutates it → 8. get() reads the latest value: 8. This demonstrates how closures can share mutable state.`,
+    concept:"Shared mutable closed-over state"
+  },
+  {
+    diff:"medium",
+    title:"Closure inside object method",
+    code:`function person(name) {
+  return {
+    greet() {
+      let msg = "Hi from " + name;
+      return function() {
+        console.log(msg);
+      };
+    }
+  };
+}
+const p = person("Bob");
+const fn = p.greet();
+fn();`,
+    opts:[`"Hi from Bob"`,"Hi from undefined","ReferenceError","Hi from name"],
+    ans:0,
+    explain:`<b>Output: Hi from Bob</b><br>greet() creates msg = "Hi from Bob" and returns a function that closes over msg. When fn() is called later, it still has access to msg through its closure. name is also in scope via the outer closure from person().`,
+    concept:"Multi-level closure chain"
+  },
+  {
+    diff:"hard",
+    title:"IIFE captures loop variable",
+    code:`var fns = [];
+for (var i = 0; i < 3; i++) {
+  fns.push((function(j) {
+    return function() { return j; };
+  })(i));
+}
+console.log(fns[0](), fns[1](), fns[2]());`,
+    opts:["3 3 3","0 1 2","0 0 0","undefined undefined undefined"],
+    ans:1,
+    explain:`<b>Output: 0 1 2</b><br>The IIFE (function(j){...})(i) is called immediately on each iteration, passing i by value into j. Each IIFE creates its own scope with its own j (0, 1, 2). The returned function closes over j — not i — so each captures a distinct value.`,
+    concept:"IIFE to fix var loop trap"
+  },
+  {
+    diff:"hard",
+    title:"Closure over mutated outer variable",
+    code:`function outer() {
+  let x = 1;
+  const fn = () => x;
+  x = 2;
+  return fn;
+}
+const get = outer();
+console.log(get());`,
+    opts:["1","2","undefined","ReferenceError"],
+    ans:1,
+    explain:`<b>Output: 2</b><br>The closure captures a reference to x, not a snapshot of its value. When x is reassigned to 2 after fn is created, the closure sees the updated value. Closures close over the variable binding, not the value at creation time.`,
+    concept:"Closure captures reference, not value"
+  },
+  {
+    diff:"hard",
+    title:"Stale closure in setTimeout",
+    code:`let count = 0;
+function inc() {
+  count++;
+}
+setTimeout(function() {
+  console.log(count);
+}, 100);
+inc(); inc(); inc();`,
+    opts:["0","1","3","undefined"],
+    ans:2,
+    explain:`<b>Output: 3</b><br>count is a global variable. inc() is called three times synchronously before the setTimeout fires. The closure inside setTimeout closes over count in the global scope — but count has already been mutated to 3 by then. Output: 3.`,
+    concept:"Closure over global mutable state"
+  },
+  {
+    diff:"hard",
+    title:"Function factory — which value?",
+    code:`function makeMultiplier(x) {
+  return function(y) {
+    return x * y;
+  };
+}
+const double = makeMultiplier(2);
+const triple = makeMultiplier(3);
+console.log(double(triple(4)));`,
+    opts:["24","20","14","12"],
+    ans:0,
+    explain:`<b>Output: 24</b><br>triple(4) calls the closure where x=3, y=4 → returns 12. double(12) calls the closure where x=2, y=12 → returns 24. Each closure independently captures its own x.`,
+    concept:"Closure composition"
+  },
+  {
+    diff:"tricky",
+    title:"Returning closure that modifies closure",
+    code:`function secret() {
+  let val = 0;
+  return {
+    inc: () => val++,
+    dec: () => val--,
+    log: () => console.log(val)
+  };
+}
+const s = secret();
+s.inc(); s.inc(); s.inc();
+s.dec();
+s.log();`,
+    opts:["3","2","1","0"],
+    ans:1,
+    explain:`<b>Output: 2</b><br>All three methods close over the same val. inc() × 3 → val = 3. dec() × 1 → val = 2. log() prints 2. This is the classic Module Pattern — shared private state via closure.`,
+    concept:"Shared mutable state — module pattern"
+  },
+  {
+    diff:"tricky",
+    title:"Shadowed variable in nested closure",
+    code:`let x = 'global';
+function outer() {
+  let x = 'outer';
+  function inner() {
+    let x = 'inner';
+    console.log(x);
+  }
+  inner();
+  console.log(x);
+}
+outer();
+console.log(x);`,
+    opts:[`"inner" "outer" "global"`,"inner outer inner","global outer inner","inner inner global"],
+    ans:0,
+    explain:`<b>Output: "inner" "outer" "global"</b><br>Each function has its own x that shadows the outer x. inner() logs its own local x = "inner". After inner() returns, outer() logs its own x = "outer". The global console.log sees the global x = "global". Variable shadowing — not mutation.`,
+    concept:"Variable shadowing across scopes"
+  },
+  {
+    diff:"tricky",
+    title:"Closure + immediately returned function",
+    code:`const fn = (function() {
+  let x = 10;
+  return function() {
+    x += 5;
+    return x;
+  };
+})();
+
+console.log(fn());
+console.log(fn());
+console.log(fn());`,
+    opts:["10 10 10","15 20 25","5 10 15","10 15 20"],
+    ans:1,
+    explain:`<b>Output: 15 20 25</b><br>The IIFE runs once, setting x = 10 and returning a closure. fn is that closure. Each call increments x by 5: 10+5=15, 15+5=20, 20+5=25. x persists across calls because it lives in the IIFE's scope, captured by the closure.`,
+    concept:"IIFE with persistent closed-over state"
+  },
+  {
+    diff:"tricky",
+    title:"Tricky: closure in array methods",
+    code:`function makeArr() {
+  var result = [];
+  for (var i = 0; i < 3; i++) {
+    result[i] = function() { return i * i; };
+  }
+  return result;
+}
+const arr = makeArr();
+console.log(arr[0]() + arr[1]() + arr[2]());`,
+    opts:["0 + 1 + 4 = 5","9 + 9 + 9 = 27","0","NaN"],
+    ans:1,
+    explain:`<b>Output: 27</b><br>var i is shared across all closures. After the loop, i = 3. arr[0]() = 3*3 = 9, arr[1]() = 9, arr[2]() = 9. Total = 27. Classic trap — all functions see the final i = 3, not their loop-time value.`,
+    concept:"var loop + array of closures"
+  },
+  {
+    diff:"tricky",
+    title:"Closure with conditional reassignment",
+    code:`function test() {
+  let flag = true;
+  const check = () => flag;
+  flag = false;
+  flag = true;
+  return check;
+}
+console.log(test()());`,
+    opts:["true","false","undefined","ReferenceError"],
+    ans:0,
+    explain:`<b>Output: true</b><br>check closes over the variable flag (a reference). flag is reassigned to false, then to true. When test()() is called, flag = true at that point. The closure always sees the current value of the variable, not any snapshot.`,
+    concept:"Closure over latest variable value"
+  },
+  {
+    diff:"hard",
+    title:"Nested closure — which x wins?",
+    code:`function a() {
+  let x = 1;
+  function b() {
+    let x = 2;
+    function c() {
+      console.log(x);
+    }
+    return c;
+  }
+  return b;
+}
+a()()();`,
+    opts:["1","2","undefined","ReferenceError"],
+    ans:1,
+    explain:`<b>Output: 2</b><br>c() looks up x in the scope chain: first checks c's own scope (no x), then b's scope (x = 2) — found. Stops there. a's x = 1 is never reached. This is lexical scoping: the nearest enclosing scope wins.`,
+    concept:"Scope chain resolution"
+  },
+  {
+    diff:"medium",
+    title:"Closure inside a callback",
+    code:`function process(arr) {
+  let results = [];
+  arr.forEach(function(item) {
+    results.push(function() {
+      return item * 2;
+    });
+  });
+  return results;
+}
+const fns = process([10, 20, 30]);
+console.log(fns[1]());`,
+    opts:["20","40","10","undefined"],
+    ans:1,
+    explain:`<b>Output: 40</b><br>forEach uses a callback, and each callback's item parameter is a new binding for each iteration (like let). fns[1] closes over item = 20. fns[1]() returns 20 * 2 = 40. Note: forEach callback parameters are always per-iteration, regardless of var/let.`,
+    concept:"Closure in forEach callback"
+  }
+];
+
+let state = {};
+let correct = 0;
+let wrong = 0;
+let currentFilter = 'all';
+
+function filter(lvl, el) {
+  currentFilter = lvl;
+  document.querySelectorAll('.pill').forEach(p => p.classList.remove('on'));
+  el.classList.add('on');
+  render();
+}
+
+function render() {
+  const quiz = document.getElementById('quiz');
+  quiz.innerHTML = '';
+  const list = currentFilter === 'all' ? Qs : Qs.filter(q => q.diff === currentFilter);
+  document.getElementById('s-total').textContent = list.length;
+  list.forEach((q, idx) => {
+    const globalIdx = Qs.indexOf(q);
+    const card = document.createElement('div');
+    card.className = 'qcard';
+    card.id = 'card-' + globalIdx;
+
+    const dLabel = {easy:'Easy',medium:'Medium',hard:'Hard',tricky:'Tricky'}[q.diff];
+    const optsHtml = q.opts.map((o, oi) => {
+      let cls = 'opt';
+      const s = state[globalIdx];
+      if (s !== undefined) {
+        if (oi === q.ans) cls += ' correct reveal';
+        else if (oi === s && s !== q.ans) cls += ' wrong';
+      }
+      return `<button class="${cls}" onclick="answer(${globalIdx},${oi})" ${s!==undefined?'disabled':''}>${o}</button>`;
+    }).join('');
+
+    const explainShow = state[globalIdx] !== undefined ? 'show' : '';
+
+    card.innerHTML = `
+      <div class="qhead">
+        <span class="qnum">Q${idx+1}</span>
+        <div class="qright">
+          <span class="difficulty d-${q.diff}">${dLabel}</span>
+          <div class="qtitle">${q.title} — what does this print?</div>
+          <div class="code">${q.code.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div>
+          <div class="guess-row">${optsHtml}</div>
+        </div>
+      </div>
+      <div class="explain ${explainShow}" id="exp-${globalIdx}">
+        <div class="explain-inner">
+          <span class="tip-tag">Concept: ${q.concept}</span><br>
+          ${q.explain}
+          <div class="output-box">// Output\n${q.opts[q.ans]}</div>
+        </div>
+      </div>
+    `;
+    quiz.appendChild(card);
+  });
+  updateScore();
+}
+
+function answer(idx, chosen) {
+  if (state[idx] !== undefined) return;
+  state[idx] = chosen;
+  if (chosen === Qs[idx].ans) correct++;
+  else wrong++;
+  render();
+}
+
+function updateScore() {
+  const total = Object.keys(state).length;
+  document.getElementById('s-correct').textContent = correct;
+  document.getElementById('s-wrong').textContent = wrong;
+  const pct = total > 0 ? Math.round((correct/total)*100) : 0;
+  document.getElementById('s-pct').textContent = total > 0 ? pct + '%' : '—';
+  const allVisible = currentFilter === 'all' ? Qs.length : Qs.filter(q=>q.diff===currentFilter).length;
+  document.getElementById('sbar').style.width = allVisible > 0 ? (total/allVisible*100)+'%' : '0%';
+}
+
+function resetAll() {
+  state = {};
+  correct = 0;
+  wrong = 0;
+  render();
+}
+
+render();
+</script>

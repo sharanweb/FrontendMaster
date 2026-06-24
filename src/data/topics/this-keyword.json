@@ -1,0 +1,71 @@
+{
+  "topic": "this-keyword",
+  "questions": [
+    {
+      "id": "this-001",
+      "type": "theory",
+      "level": 1,
+      "question": "Explain the four rules that determine the value of 'this' in JavaScript, and their precedence.",
+      "answer": "<b>1. new binding</b> (highest precedence): When called with new, this = newly created object.<br><b>2. Explicit binding</b>: .call(ctx), .apply(ctx), .bind(ctx) — this = ctx.<br><b>3. Implicit binding</b>: Called as a method — obj.fn() — this = obj.<br><b>4. Default binding</b> (lowest): Standalone function call — this = global (window) in sloppy mode, undefined in strict mode.<br><br><b>Arrow functions</b> are the exception — they have no own this. They inherit this lexically from the enclosing scope at definition time. No rule above applies to them.",
+      "code": "function fn() { console.log(this.x); }\nconst obj = { x: 42, fn };\n\nfn();           // undefined (strict) / global.x (sloppy)\nobj.fn();       // 42 — implicit\nfn.call({x:99}); // 99 — explicit\nnew fn();       // undefined — new creates {} with no x",
+      "tip": "Memorise the precedence order: new > explicit > implicit > default. Interviewers test this directly.",
+      "followUps": ["What does 'new' do step by step?", "Can you override explicit binding with another .call?"],
+      "companies": ["Amazon", "Infosys", "HCL"]
+    },
+    {
+      "id": "this-002",
+      "type": "output",
+      "level": 2,
+      "question": "What does this output? Trace each value of 'this'.",
+      "answer": "<b>Output: \"obj\" → undefined → \"obj\"</b><br><br>regular(): called as method, this = obj → \"obj\".<br>arrow(): defined at object-literal level, this = outer (global/module) scope → undefined (or '' in browser global).<br>nested(): regular function, this = obj. inner is an arrow that captures this from nested's scope = obj → \"obj\".<br><br>Key: arrow inside a method inherits the method's this — a common and useful pattern.",
+      "code": "const obj = {\n  name: 'obj',\n  regular: function() { return this.name; },\n  arrow: () => this.name,\n  nested: function() {\n    const inner = () => this.name;\n    return inner();\n  }\n};\nconsole.log(obj.regular());\nconsole.log(obj.arrow());\nconsole.log(obj.nested());",
+      "tip": "",
+      "followUps": ["How would you fix the arrow() method to work correctly?", "What if nested() was also an arrow function?"],
+      "companies": ["Google", "Meta", "Microsoft"]
+    },
+    {
+      "id": "this-003",
+      "type": "output",
+      "level": 2,
+      "question": "What prints here? Classic 'this' loss scenario.",
+      "answer": "<b>Output: NaN (then NaN, NaN... infinitely)</b><br><br>setInterval's callback is called as a plain function, not as a method. this = global object (or undefined in strict). global.count is undefined. undefined++ = NaN. NaN++ = NaN.<br><br>Fix: arrow function (inherits this from start's context = t), or const self = this / .bind(this).",
+      "code": "function Timer() {\n  this.count = 0;\n}\nTimer.prototype.start = function() {\n  setInterval(function() {\n    this.count++;\n    console.log(this.count);\n  }, 100);\n};\n\nconst t = new Timer();\nt.start();",
+      "tip": "",
+      "followUps": ["What are the three ways to fix this inside setInterval?", "Would strict mode change this output?"],
+      "companies": ["Flipkart", "Uber", "Paytm"]
+    },
+    {
+      "id": "this-004",
+      "type": "output",
+      "level": 3,
+      "question": "What is the output of this chained 'this' puzzle?",
+      "answer": "<b>Output: \"obj1\" → \"obj2\" → \"global\" → \"obj2\"</b><br><br>obj1.foo(): implicit binding → this = obj1 → \"obj1\".<br>obj2.foo(): implicit binding → this = obj2 → \"obj2\".<br>f(): method extracted — default binding → this = global → \"global\" (var bar leaks to global).<br>obj1.foo.call(obj2): explicit binding overrides implicit → this = obj2 → \"obj2\".",
+      "code": "function foo() {\n  console.log(this.bar);\n}\nvar bar = 'global';\nconst obj1 = { bar: 'obj1', foo };\nconst obj2 = { bar: 'obj2', foo };\n\nobj1.foo();\nobj2.foo();\nconst f = obj1.foo;\nf();\nobj1.foo.call(obj2);",
+      "tip": "",
+      "followUps": ["Why does var bar leak to global but let/const don't?", "What if bar was let instead of var?"],
+      "companies": ["Google", "Stripe", "Shopify"]
+    },
+    {
+      "id": "this-005",
+      "type": "theory",
+      "level": 1,
+      "question": "Explain how 'this' is determined in JavaScript. What are the four rules?",
+      "answer": "<b>1. Default binding</b>: In a regular function call (not method), this = global object (window). In strict mode, this = undefined.<br><br><b>2. Implicit binding</b>: When called as a method (obj.fn()), this = obj — the object to the left of the dot.<br><br><b>3. Explicit binding</b>: Using .call(ctx), .apply(ctx), or .bind(ctx) — this = ctx.<br><br><b>4. new binding</b>: When called with new, this = newly created object.<br><br>Arrow functions have NO own this — they inherit this from the enclosing lexical scope at definition time.",
+      "code": "const obj = {\n  name: 'Alice',\n  greet() { console.log(this.name); },           // implicit\n  greetArrow: () => console.log(this.name),      // lexical (window.name)\n};\nobj.greet();         // 'Alice'\nobj.greetArrow();    // undefined (global this)\n\nconst fn = obj.greet;\nfn();                // undefined (strict) or '' (window.name)\nfn.call({ name: 'Bob' }); // 'Bob' — explicit binding",
+      "tip": "The precedence order: new > explicit > implicit > default. This order itself is commonly asked.",
+      "followUps": ["What happens to 'this' when you destructure a method?", "How does bind differ from call/apply?"],
+      "companies": ["Amazon", "Wipro", "Cognizant"]
+    },
+    {
+      "id": "this-006",
+      "type": "theory",
+      "level": 2,
+      "question": "How do arrow functions handle 'this'? Why can't you use arrow functions as constructors or prototype methods?",
+      "answer": "Arrow functions <b>do not have their own 'this'</b>. They inherit this from the enclosing lexical scope at the time they are defined — not at call time. This is called <b>lexical this</b>.<br><br><b>Cannot be constructors</b>: Because they have no own this to assign to, using new with an arrow function throws a TypeError.<br><br><b>Avoid as prototype methods</b>: If you define a prototype method as an arrow function, this inside it refers to whatever this was in the enclosing scope (usually undefined or global), not the instance — defeating the purpose entirely.",
+      "code": "class Timer {\n  constructor() {\n    this.seconds = 0;\n    // Arrow captures 'this' (the Timer instance) at definition time:\n    setInterval(() => this.seconds++, 1000); // correct!\n\n    // Regular function would lose 'this':\n    // setInterval(function() { this.seconds++; }, 1000); // broken!\n  }\n}\n\n// Arrow as prototype method — WRONG:\nfunction Cat(name) { this.name = name; }\nCat.prototype.speak = () => this.name; // 'this' is global here!\nnew Cat('Whiskers').speak(); // undefined",
+      "tip": "The class constructor with setInterval example is a canonical real-world use case for arrow function's lexical this.",
+      "followUps": ["Can you hard-bind an arrow function with .bind()?", "What is the [[ThisMode]] internal slot?"],
+      "companies": ["Google", "Meta"]
+    }
+  ]
+}

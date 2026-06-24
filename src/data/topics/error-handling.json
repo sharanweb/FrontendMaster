@@ -1,0 +1,49 @@
+{
+  "topic": "error-handling",
+  "questions": [
+    {
+      "id": "error-001",
+      "type": "theory",
+      "level": 1,
+      "question": "How does error handling differ between synchronous and asynchronous code? What are the pitfalls?",
+      "answer": "<b>Sync</b>: try/catch works perfectly — errors are thrown synchronously up the call stack.<br><br><b>setTimeout/setInterval callbacks</b>: try/catch does NOT catch them — the callback runs in a new event loop turn with an empty call stack. Errors go to window.onerror or process.on('uncaughtException').<br><br><b>Promises</b>: Errors become rejections. Use .catch() or second arg to .then(). Uncaught rejections fire unhandledRejection event.<br><br><b>async/await</b>: Rejections surface as thrown errors — wrap in try/catch. But only within the async function itself.",
+      "code": "// PITFALL — try/catch doesn't catch async errors:\ntry {\n  setTimeout(() => { throw new Error('async'); }, 0);\n} catch(e) { console.log('never'); } // error is UNCAUGHT\n\n// Promise — must use .catch:\nPromise.reject('fail').catch(e => console.log('caught:', e));\n\n// async/await — try/catch works:\nasync function run() {\n  try { await Promise.reject('fail'); }\n  catch(e) { console.log('caught:', e); }\n}",
+      "tip": "The try/catch-around-setTimeout gotcha is asked at Amazon and Flipkart. Always demonstrate you know the async error boundary.",
+      "followUps": ["What is unhandledRejection and how do you handle it globally?", "What is Error.cause (ES2022)?"],
+      "companies": ["Amazon", "Flipkart", "Razorpay"]
+    },
+    {
+      "id": "error-002",
+      "type": "output",
+      "level": 2,
+      "question": "What is the output? Async error handling chain.",
+      "answer": "<b>Output: \"caught: boom\" → \"result: recovered\"</b><br><br>failing() throws synchronously inside an async function → becomes a rejected Promise.<br>await failing() — rejection bubbles to the try/catch → logs \"caught: boom\".<br>\"after failing\" never logs — execution jumps to catch.<br>catch returns 'recovered' → handler() resolves with 'recovered' → .then logs \"result: recovered\".",
+      "code": "async function failing() {\n  throw new Error('boom');\n}\nasync function handler() {\n  try {\n    await failing();\n    console.log('after failing'); // ?\n  } catch(e) {\n    console.log('caught:', e.message);\n    return 'recovered';\n  }\n}\nhandler().then(v => console.log('result:', v));",
+      "tip": "",
+      "followUps": ["What if the catch block also threw?", "What is the difference between return and return await inside async functions?"],
+      "companies": ["Meta", "Google", "Netflix"]
+    },
+    {
+      "id": "error-003",
+      "type": "output",
+      "level": 3,
+      "question": "What is the output? Tests Promise error propagation subtleties.",
+      "answer": "<b>Output: \"b 1\" → \"c 2\" → \"d\"</b><br><br>throw 1 → rejection, skips .then(log a), caught by .catch(b) → logs \"b 1\", returns resolved Promise.<br>.then(() => throw 2) → new rejection. Caught by next .catch(c) → logs \"c 2\".<br>.then(log d) → logs \"d\".<br><br>Key: .catch() recovers and returns a RESOLVED Promise unless it re-throws. The chain continues after a catch.",
+      "code": "Promise.resolve()\n  .then(() => { throw 1; })\n  .then(() => console.log('a'))\n  .catch(e => { console.log('b', e); })\n  .then(() => { throw 2; })\n  .catch(e => console.log('c', e))\n  .then(() => console.log('d'));",
+      "tip": "",
+      "followUps": ["How does finally() interact with resolved vs rejected state?", "What is Promise.prototype.finally?"],
+      "companies": ["Stripe", "Shopify", "Cloudflare"]
+    },
+    {
+      "id": "error-004",
+      "type": "theory",
+      "level": 1,
+      "question": "How does error handling work in synchronous vs asynchronous code in JavaScript?",
+      "answer": "<b>Synchronous</b>: Use try/catch/finally. Errors thrown inside the try block are caught immediately.<br><br><b>Promises</b>: Use .catch() or a second argument to .then(). Uncaught Promise rejections trigger unhandledRejection event.<br><br><b>async/await</b>: Wrap await calls in try/catch — rejected Promises surface as thrown errors.<br><br><b>Key difference</b>: try/catch does NOT catch asynchronous errors unless used with await.",
+      "code": "// Sync:\ntry {\n  throw new Error('sync error');\n} catch(e) { console.log(e.message); }\n\n// Async — try/catch DOESN'T work here:\ntry {\n  setTimeout(() => { throw new Error('async'); }, 0); // UNCAUGHT!\n} catch(e) { console.log('never runs'); }\n\n// Promise:\nPromise.reject(new Error('oops'))\n  .catch(e => console.log(e.message)); // works\n\n// async/await:\nasync function run() {\n  try {\n    await Promise.reject(new Error('fail'));\n  } catch(e) { console.log(e.message); } // works\n}",
+      "tip": "The try/catch-around-setTimeout gotcha is asked at Amazon. Always test your error handling with async code.",
+      "followUps": ["What is the unhandledRejection event?", "What is Error.prototype.cause (ES2022)?"],
+      "companies": ["Amazon", "Flipkart", "Razorpay"]
+    }
+  ]
+}

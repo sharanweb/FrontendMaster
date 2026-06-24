@@ -1,0 +1,691 @@
+
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--font-sans); }
+.container { padding: 1.5rem 0; }
+.level-tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 1.5rem; }
+.tab { padding: 6px 14px; border-radius: 20px; border: 0.5px solid var(--color-border-secondary); background: var(--color-background-secondary); color: var(--color-text-secondary); font-size: 13px; cursor: pointer; transition: all 0.15s; }
+.tab.active { background: var(--color-background-primary); color: var(--color-text-primary); border-color: var(--color-border-primary); font-weight: 500; }
+.tab:hover:not(.active) { background: var(--color-background-primary); }
+.section { margin-bottom: 2rem; }
+.section-header { display: flex; align-items: center; gap: 10px; margin-bottom: 1rem; padding-bottom: 8px; border-bottom: 0.5px solid var(--color-border-tertiary); }
+.badge { font-size: 11px; font-weight: 500; padding: 3px 10px; border-radius: 12px; }
+.badge-beginner { background: #EAF3DE; color: #3B6D11; }
+.badge-intermediate { background: #FAEEDA; color: #854F0B; }
+.badge-advanced { background: #FAECE7; color: #993C1D; }
+.badge-expert { background: #EEEDFE; color: #3C3489; }
+.section-title { font-size: 15px; font-weight: 500; color: var(--color-text-primary); }
+.q-card { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); margin-bottom: 10px; overflow: hidden; }
+.q-header { padding: 12px 16px; cursor: pointer; display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+.q-header:hover { background: var(--color-background-secondary); }
+.q-number { font-size: 12px; color: var(--color-text-tertiary); font-weight: 500; min-width: 28px; }
+.q-text { font-size: 14px; color: var(--color-text-primary); line-height: 1.5; flex: 1; }
+.q-toggle { font-size: 18px; color: var(--color-text-secondary); }
+.q-body { padding: 0 16px 14px 44px; display: none; }
+.q-body.open { display: block; }
+.answer-label { font-size: 11px; font-weight: 500; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; margin-top: 12px; }
+.answer-text { font-size: 13px; color: var(--color-text-secondary); line-height: 1.7; }
+.code-block { background: var(--color-background-tertiary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); padding: 12px; margin: 10px 0; font-family: var(--font-mono); font-size: 12px; color: var(--color-text-primary); white-space: pre; overflow-x: auto; line-height: 1.6; }
+.tip { background: #E6F1FB; border-left: 3px solid #378ADD; border-radius: 0 var(--border-radius-md) var(--border-radius-md) 0; padding: 8px 12px; margin: 10px 0; font-size: 12px; color: #0C447C; line-height: 1.5; }
+.keyword { color: #185FA5; font-weight: 500; }
+.hidden { display: none; }
+.progress-bar { height: 3px; background: var(--color-border-tertiary); border-radius: 2px; margin-bottom: 1.5rem; }
+.progress-fill { height: 100%; background: #378ADD; border-radius: 2px; transition: width 0.3s; }
+.stats { display: flex; gap: 12px; margin-bottom: 1.5rem; flex-wrap: wrap; }
+.stat { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 8px 14px; font-size: 12px; color: var(--color-text-secondary); }
+.stat span { font-weight: 500; color: var(--color-text-primary); font-size: 14px; display: block; }
+</style>
+
+<div class="container">
+  <h2 class="sr-only">JavaScript Closures Interview Questions — Zero to Hero Guide</h2>
+  
+  <div class="stats">
+    <div class="stat"><span>35+</span>Questions</div>
+    <div class="stat"><span>5</span>Difficulty Levels</div>
+    <div class="stat"><span>MAANG</span>Focused</div>
+  </div>
+
+  <div class="level-tabs">
+    <div class="tab active" onclick="showLevel('all')">All</div>
+    <div class="tab" onclick="showLevel('beginner')">Beginner</div>
+    <div class="tab" onclick="showLevel('intermediate')">Intermediate</div>
+    <div class="tab" onclick="showLevel('advanced')">Advanced</div>
+    <div class="tab" onclick="showLevel('expert')">Expert</div>
+  </div>
+
+  <div id="content"></div>
+</div>
+
+<script>
+const data = [
+  {
+    level: "beginner",
+    badge: "Beginner",
+    title: "What is a Closure?",
+    questions: [
+      {
+        q: "What is a closure in JavaScript? Can you define it in your own words?",
+        answer: "A closure is a function that retains access to its lexical scope (the variables from its outer/enclosing function) even after that outer function has finished executing. The inner function 'closes over' the variables it needs.",
+        code: `function outer() {
+  let count = 0;         // This variable is "closed over"
+  
+  function inner() {
+    count++;             // inner accesses outer's variable
+    console.log(count);
+  }
+  
+  return inner;          // outer has returned, but count lives on
+}
+
+const counter = outer(); // outer() done, count not garbage collected
+counter(); // 1
+counter(); // 2 — count persists!`,
+        tip: "Key insight: In most languages, local variables are destroyed when the function returns. Closures are JavaScript's mechanism to keep them alive."
+      },
+      {
+        q: "What is lexical scoping? How does it relate to closures?",
+        answer: "Lexical scoping means that the scope of a variable is determined by where it's written in the source code (at author time), not where it's called from (at runtime). Closures are built on top of lexical scoping — a function always has access to variables in the scope where it was defined.",
+        code: `let x = 'global';
+
+function outer() {
+  let x = 'outer';
+
+  function inner() {
+    console.log(x); // "outer" — uses where it was DEFINED, not called
+  }
+
+  return inner;
+}
+
+const fn = outer();
+fn(); // "outer" — NOT "global", even though called from global scope`,
+        tip: "Lexical = 'at the place of writing'. The function looks up the scope chain based on where it was written, not where it runs."
+      },
+      {
+        q: "Can you give a simple real-world use case of closures?",
+        answer: "A counter factory is the classic example — closures are used to create private state that persists across calls without exposing variables globally.",
+        code: `function makeCounter(start = 0) {
+  let count = start;        // private variable
+  
+  return {
+    increment: () => ++count,
+    decrement: () => --count,
+    reset:     () => { count = start; },
+    value:     () => count,
+  };
+}
+
+const c1 = makeCounter(10);
+const c2 = makeCounter(0);
+
+c1.increment(); // 11
+c1.increment(); // 12
+c2.increment(); // 1   — c1 and c2 are completely independent!`
+      },
+      {
+        q: "Is every function in JavaScript a closure?",
+        answer: "Technically yes — every function in JavaScript 'closes over' its surrounding scope. But in practical interview usage, we reserve the term 'closure' for functions that access variables from an outer scope (not just global scope). A function that only uses its own parameters/locals is rarely called a closure in conversation.",
+        code: `// This is trivially a closure (closes over global), but we wouldn't call it one:
+function add(a, b) { return a + b; }
+
+// This is what we mean by a closure:
+function makeAdder(x) {
+  return (y) => x + y;  // closes over x from outer scope
+}
+const add5 = makeAdder(5);
+add5(3); // 8`
+      }
+    ]
+  },
+  {
+    level: "intermediate",
+    badge: "Intermediate",
+    title: "Scope, Execution & Variable Capture",
+    questions: [
+      {
+        q: "What is the classic 'var in a loop' closure bug? How do you fix it?",
+        answer: "This is one of the most common MAANG interview questions on closures! When you use var in a loop and create closures inside, all closures share the same variable because var is function-scoped (not block-scoped). By the time the callbacks run, the loop is done and the variable holds its final value.",
+        code: `// THE BUG — prints 3, 3, 3
+for (var i = 0; i < 3; i++) {
+  setTimeout(() => console.log(i), 100);
+}
+// All three closures share the SAME i (var is function-scoped)
+
+// FIX 1: Use let (block-scoped — each iteration gets its OWN i)
+for (let i = 0; i < 3; i++) {
+  setTimeout(() => console.log(i), 100); // 0, 1, 2 ✓
+}
+
+// FIX 2: IIFE to capture i by value
+for (var i = 0; i < 3; i++) {
+  ((j) => {
+    setTimeout(() => console.log(j), 100); // 0, 1, 2 ✓
+  })(i);
+}
+
+// FIX 3: Factory function
+for (var i = 0; i < 3; i++) {
+  setTimeout(((j) => () => console.log(j))(i), 100); // 0, 1, 2 ✓
+}`,
+        tip: "Always ask the interviewer: 'Is this using var or let?' — the answer changes completely."
+      },
+      {
+        q: "Explain what an IIFE is and how it relates to closures.",
+        answer: "An IIFE (Immediately Invoked Function Expression) is a function that is defined and called immediately. Before ES6 let/const, IIFEs were used to create a new scope for variables, effectively using closure to create private state.",
+        code: `// Syntax:
+(function() {
+  let private = 42;       // not accessible outside
+  console.log(private);
+})();
+
+// console.log(private);  // ReferenceError!
+
+// Module pattern using IIFE + closure:
+const myModule = (function() {
+  let _secret = 0;        // truly private
+
+  return {
+    getSecret: () => _secret,
+    setSecret: (val) => { _secret = val; }
+  };
+})();
+
+myModule.setSecret(99);
+myModule.getSecret(); // 99
+myModule._secret;     // undefined — it's private!`
+      },
+      {
+        q: "What will this code output? Explain why.",
+        answer: "This is a tricky output question that tests deep understanding of closure + hoisting + execution order.",
+        code: `function createFunctions() {
+  let result = [];
+  for (var i = 0; i < 3; i++) {
+    result.push(function() { return i; });
+  }
+  return result;
+}
+
+const fns = createFunctions();
+console.log(fns[0]()); // ?
+console.log(fns[1]()); // ?
+console.log(fns[2]()); // ?
+
+// OUTPUT: 3, 3, 3
+// Why? All three functions close over the SAME i (var).
+// By the time any fn is called, the loop completed: i === 3.
+
+// FIX:
+function createFunctions() {
+  let result = [];
+  for (let i = 0; i < 3; i++) {   // let creates a new binding each iteration
+    result.push(function() { return i; });
+  }
+  return result;
+}
+// Now: 0, 1, 2 ✓`
+      },
+      {
+        q: "How do closures relate to the concept of 'private variables' in JavaScript?",
+        answer: "JavaScript doesn't have native private class fields in older patterns. Closures are used to simulate true privacy — variables inside a closure are inaccessible from outside, they can only be modified via the exposed methods.",
+        code: `function BankAccount(initialBalance) {
+  let balance = initialBalance;    // PRIVATE — no external access!
+
+  return {
+    deposit(amount) {
+      if (amount > 0) balance += amount;
+    },
+    withdraw(amount) {
+      if (amount <= balance) balance -= amount;
+      else console.log('Insufficient funds');
+    },
+    getBalance() { return balance; }
+  };
+}
+
+const acc = BankAccount(1000);
+acc.deposit(500);
+acc.withdraw(200);
+acc.getBalance(); // 1300
+
+acc.balance;      // undefined — truly private!`,
+        tip: "Modern JS has # private fields in classes, but understanding closure-based privacy shows depth of knowledge."
+      },
+      {
+        q: "What is a partial application and how do closures enable it?",
+        answer: "Partial application (and currying) is a functional programming pattern where a function with multiple arguments is called with fewer arguments, returning a new function waiting for the rest. Closures make this possible by capturing the already-supplied arguments.",
+        code: `// Partial Application
+function multiply(a, b) { return a * b; }
+
+function partial(fn, ...presetArgs) {
+  return function(...laterArgs) {       // closes over presetArgs
+    return fn(...presetArgs, ...laterArgs);
+  };
+}
+
+const double = partial(multiply, 2);
+const triple = partial(multiply, 3);
+
+double(5); // 10
+triple(5); // 15
+
+// Currying with closures:
+const curry = (fn) => (a) => (b) => fn(a, b);
+
+const curriedMultiply = curry(multiply);
+curriedMultiply(2)(5); // 10
+const double2 = curriedMultiply(2);
+double2(7); // 14`
+      }
+    ]
+  },
+  {
+    level: "advanced",
+    badge: "Advanced",
+    title: "Memory, Performance & Patterns",
+    questions: [
+      {
+        q: "Can closures cause memory leaks? How would you prevent them?",
+        answer: "Yes. Since closures hold references to their outer scope variables, those variables are not garbage collected as long as the closure exists. If closures are attached to long-lived objects (like DOM event listeners) and are never removed, they can prevent large objects from being GC'd.",
+        code: `// MEMORY LEAK EXAMPLE
+function setupButton() {
+  const bigData = new Array(1000000).fill('data'); // 1M items
+  
+  document.getElementById('btn').addEventListener('click', function() {
+    // This closure captures bigData — even if we never USE it here
+    console.log('clicked');
+  });
+  // bigData can't be GC'd as long as the event listener exists!
+}
+
+// FIX 1: Don't capture unnecessary variables
+function setupButton() {
+  const bigData = new Array(1000000).fill('data');
+  const processed = processData(bigData); // extract what you need
+  bigData = null;                         // allow GC
+
+  document.getElementById('btn').addEventListener('click', function() {
+    console.log(processed); // only captures the small result
+  });
+}
+
+// FIX 2: Remove listeners when done
+function setup() {
+  const handler = () => console.log('click');
+  btn.addEventListener('click', handler);
+  return () => btn.removeEventListener('click', handler); // cleanup fn
+}`,
+        tip: "Always ask: 'How long does this closure live? Does it capture large or sensitive data?'"
+      },
+      {
+        q: "How does memoization use closures? Implement a memoize function.",
+        answer: "Memoization caches the results of expensive function calls. The closure captures the cache object, which persists between calls but is private to the memoized function.",
+        code: `function memoize(fn) {
+  const cache = new Map();    // closed over — persists, stays private
+  
+  return function(...args) {
+    const key = JSON.stringify(args);
+    
+    if (cache.has(key)) {
+      console.log('Cache hit!');
+      return cache.get(key);
+    }
+    
+    const result = fn.apply(this, args);
+    cache.set(key, result);
+    return result;
+  };
+}
+
+// Usage:
+function expensiveCalc(n) {
+  console.log('Computing...');
+  return n * n;
+}
+
+const memoized = memoize(expensiveCalc);
+memoized(5);  // "Computing..." → 25
+memoized(5);  // "Cache hit!"  → 25 (no recompute)
+memoized(6);  // "Computing..." → 36`
+      },
+      {
+        q: "Implement the module pattern using closures. What are its advantages?",
+        answer: "The Module Pattern uses an IIFE with closures to create a self-contained unit with public and private members — this was the dominant way to organize JS code before ES Modules.",
+        code: `const ShoppingCart = (function() {
+  // PRIVATE
+  let items = [];
+  let discount = 0;
+
+  function calcTotal() {
+    const raw = items.reduce((sum, item) => sum + item.price, 0);
+    return raw * (1 - discount);
+  }
+
+  // PUBLIC API
+  return {
+    addItem(item) {
+      items.push(item);
+      console.log(\`Added \${item.name}\`);
+    },
+    applyDiscount(pct) {
+      discount = pct / 100;
+    },
+    checkout() {
+      console.log(\`Total: $\${calcTotal().toFixed(2)}\`);
+      return calcTotal();
+    },
+    itemCount: () => items.length
+  };
+})();
+
+ShoppingCart.addItem({ name: 'Book', price: 20 });
+ShoppingCart.addItem({ name: 'Pen', price: 5 });
+ShoppingCart.applyDiscount(10);
+ShoppingCart.checkout(); // Total: $22.50
+ShoppingCart.items;      // undefined — private!`,
+        tip: "Advantages: Encapsulation, no global pollution, clear public API, true private state."
+      },
+      {
+        q: "What is a closure's relationship with the call stack and heap?",
+        answer: "When a function executes, its frame (local variables) lives on the call stack. Normally, when the function returns, the frame is popped and variables are eligible for GC. But when a closure exists that references those variables, the JavaScript engine moves them to the heap, keeping them alive as long as the closure is reachable.",
+        code: `function outer() {
+  // When outer() is called, a stack frame is created.
+  // 'secret' starts on the stack...
+  let secret = 42;
+
+  return function inner() {
+    // inner closes over secret.
+    // The engine detects this and MOVES secret to the HEAP.
+    return secret;
+  };
+  // outer's stack frame is gone, but 'secret' lives on in the heap
+}
+
+const fn = outer();  // outer stack frame popped
+fn();                // 42 — secret accessed from heap via closure
+
+// When fn itself is GC'd, secret is finally freed from the heap.`
+      },
+      {
+        q: "Implement a 'once' function using closures — a function that can only be called once.",
+        answer: "Classic utility function. The closure captures a flag and the original function, resetting after first call.",
+        code: `function once(fn) {
+  let called = false;   // closed over
+  let result;           // closed over — cache first result
+
+  return function(...args) {
+    if (!called) {
+      called = true;
+      result = fn.apply(this, args);
+    }
+    return result;      // always returns first call's result
+  };
+}
+
+const initDB = once(function() {
+  console.log('DB initialized!');
+  return { connected: true };
+});
+
+initDB(); // "DB initialized!" → { connected: true }
+initDB(); // (silent)          → { connected: true }
+initDB(); // (silent)          → { connected: true }`
+      }
+    ]
+  },
+  {
+    level: "expert",
+    badge: "Expert",
+    title: "MAANG Deep Dives & Tricky Puzzles",
+    questions: [
+      {
+        q: "What is the output of this code? Walk me through it step by step.",
+        answer: "This is a layered closure + timing puzzle combining setTimeout, var scoping, and execution context.",
+        code: `for (var i = 0; i < 5; i++) {
+  (function(j) {
+    setTimeout(function() {
+      console.log(j);
+    }, j * 1000);
+  })(i);
+}
+
+// Output (one per second): 0, 1, 2, 3, 4
+
+// Step-by-step:
+// Iteration 0: IIFE called with j=0, setTimeout(fn, 0)    — fn closes over j=0
+// Iteration 1: IIFE called with j=1, setTimeout(fn, 1000) — fn closes over j=1
+// ...etc.
+// Each IIFE creates a NEW scope with its own j.
+// Without IIFE (using var): would print 5,5,5,5,5 after 0,1,2,3,4 seconds`
+      },
+      {
+        q: "Implement a debounce function using closures. Explain each closure variable.",
+        answer: "Debounce delays a function call until after a specified time has passed since the last invocation. Used heavily in search inputs, window resize handlers, etc.",
+        code: `function debounce(fn, delay) {
+  let timer = null;    // closed over — persists between calls
+
+  return function(...args) {
+    // 'this' is the calling context
+    clearTimeout(timer);        // cancel previous scheduled call
+
+    timer = setTimeout(() => {
+      fn.apply(this, args);     // calls fn with correct context + args
+      timer = null;             // cleanup
+    }, delay);
+  };
+}
+
+// Usage:
+const searchAPI = debounce(function(query) {
+  console.log('Searching for:', query);
+  // fetch('/api/search?q=' + query)
+}, 300);
+
+// User types fast — only last call fires after 300ms of silence:
+searchAPI('j');      // cancelled
+searchAPI('ja');     // cancelled
+searchAPI('jav');    // cancelled
+searchAPI('java');   // fires after 300ms — "Searching for: java"
+
+// Closed over variables:
+// timer — tracks the pending setTimeout ID across calls
+// fn    — the original function (from outer scope)
+// delay — the wait time (from outer scope)`
+      },
+      {
+        q: "Implement a throttle function using closures.",
+        answer: "Throttle ensures a function fires at most once every N milliseconds, no matter how many times it's called. Different from debounce — throttle fires immediately then ignores calls for the delay period.",
+        code: `function throttle(fn, limit) {
+  let lastCall = 0;       // closed over — timestamp of last invocation
+
+  return function(...args) {
+    const now = Date.now();
+    
+    if (now - lastCall >= limit) {
+      lastCall = now;
+      return fn.apply(this, args);
+    }
+    // else: silently drop this call
+  };
+}
+
+// Usage — scroll handler fires max once per 100ms:
+const onScroll = throttle(function() {
+  console.log('Scroll position:', window.scrollY);
+}, 100);
+
+window.addEventListener('scroll', onScroll);`
+      },
+      {
+        q: "How would you implement a publish-subscribe (event emitter) system using closures?",
+        answer: "An event emitter stores listener functions in a closed-over registry — a perfect use case for closure-based private state.",
+        code: `function createEventEmitter() {
+  const listeners = {};    // closed over — the private registry
+
+  return {
+    on(event, fn) {
+      if (!listeners[event]) listeners[event] = [];
+      listeners[event].push(fn);
+      return () => this.off(event, fn); // returns unsubscribe fn!
+    },
+    off(event, fn) {
+      if (listeners[event])
+        listeners[event] = listeners[event].filter(f => f !== fn);
+    },
+    emit(event, ...args) {
+      (listeners[event] || []).forEach(fn => fn(...args));
+    },
+    once(event, fn) {
+      const wrapper = (...args) => {
+        fn(...args);
+        this.off(event, wrapper); // auto-unsubscribe after one call
+      };
+      this.on(event, wrapper);
+    }
+  };
+}
+
+const emitter = createEventEmitter();
+const unsub = emitter.on('login', (user) => console.log('Welcome', user));
+emitter.emit('login', 'Alice'); // "Welcome Alice"
+unsub();                        // unsubscribe
+emitter.emit('login', 'Bob');   // (nothing — Alice's handler removed)`
+      },
+      {
+        q: "What is the difference between closures and objects? When would you use each?",
+        answer: "Both closures and objects can store state and expose behavior. Closures give truly private state; objects use conventions (underscore prefix, # private fields). The choice depends on the use case.",
+        code: `// CLOSURE APPROACH — truly private state
+function createPerson(name) {
+  let _age = 0;   // truly private
+
+  return {
+    getName: () => name,
+    getAge:  () => _age,
+    birthday: () => { _age++; }
+  };
+}
+
+// OBJECT APPROACH — conventionally private (not enforced)
+class Person {
+  #age = 0;       // ES2022 private field
+  constructor(name) { this.name = name; }
+  getName() { return this.name; }
+  getAge()  { return this.#age; }
+  birthday(){ this.#age++; }
+}
+
+// When to use closures:
+// ✓ Functional programming style
+// ✓ Need true privacy (pre-ES2022)
+// ✓ Factory functions, partial application
+// ✓ One-off objects, no inheritance needed
+
+// When to use classes/objects:
+// ✓ Need prototypal inheritance
+// ✓ Many instances (memory efficiency — methods shared on prototype)
+// ✓ Team familiarity, OOP paradigms
+// ✓ instanceof checks needed`,
+        tip: "Memory: 1000 closure instances each carry their own copy of methods. 1000 class instances share methods on the prototype. For large-scale instantiation, classes are more memory-efficient."
+      },
+      {
+        q: "Explain how React hooks like useState and useCallback use closure concepts internally.",
+        answer: "React hooks heavily rely on closures. Each component render creates a new closure that captures the current state values. This is why stale closures are a common React bug.",
+        code: `// Stale closure bug in React:
+function Counter() {
+  const [count, setCount] = useState(0);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      // This closure captures count at render time (0)
+      // Even as count updates, this sees stale value!
+      console.log(count); // Always 0 — stale closure!
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []); // empty deps = closure captures initial render's count
+
+  // FIX: Use functional update (doesn't need to close over count)
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCount(c => c + 1); // uses latest value from React internals
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
+}
+
+// useCallback also uses closures:
+const handleClick = useCallback(() => {
+  console.log(value); // closes over value
+}, [value]); // re-created when value changes (new closure)`,
+        tip: "Stale closures in React are the #1 hooks pitfall in MAANG interviews. Always mention the dependency array."
+      }
+    ]
+  }
+];
+
+let openCards = new Set();
+
+function renderAll(filter) {
+  const content = document.getElementById('content');
+  content.innerHTML = '';
+  
+  const levels = filter === 'all' ? data : data.filter(d => d.level === filter);
+  
+  levels.forEach(section => {
+    const sec = document.createElement('div');
+    sec.className = 'section';
+    
+    sec.innerHTML = `
+      <div class="section-header">
+        <span class="badge badge-${section.level}">${section.badge}</span>
+        <span class="section-title">${section.title}</span>
+      </div>
+    `;
+    
+    section.questions.forEach((q, qi) => {
+      const cardId = `${section.level}-${qi}`;
+      const card = document.createElement('div');
+      card.className = 'q-card';
+      
+      const codeBlock = q.code ? `<div class="code-block">${q.code.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</div>` : '';
+      const tipBlock = q.tip ? `<div class="tip"><strong>Interviewer tip:</strong> ${q.tip}</div>` : '';
+      
+      card.innerHTML = `
+        <div class="q-header" onclick="toggleCard('${cardId}')">
+          <span class="q-number">Q${qi + 1}</span>
+          <span class="q-text">${q.q}</span>
+          <span class="q-toggle" id="toggle-${cardId}">+</span>
+        </div>
+        <div class="q-body" id="body-${cardId}">
+          <div class="answer-label">Answer</div>
+          <div class="answer-text">${q.answer}</div>
+          ${codeBlock}
+          ${tipBlock}
+        </div>
+      `;
+      
+      sec.appendChild(card);
+    });
+    
+    content.appendChild(sec);
+  });
+}
+
+function toggleCard(id) {
+  const body = document.getElementById('body-' + id);
+  const toggle = document.getElementById('toggle-' + id);
+  if (body.classList.contains('open')) {
+    body.classList.remove('open');
+    toggle.textContent = '+';
+  } else {
+    body.classList.add('open');
+    toggle.textContent = '−';
+  }
+}
+
+function showLevel(level) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  event.target.classList.add('active');
+  renderAll(level);
+}
+
+renderAll('all');
+</script>

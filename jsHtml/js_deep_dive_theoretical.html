@@ -1,0 +1,833 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+.w{padding:1.5rem 0;font-family:var(--font-sans)}
+.top{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:1rem}
+.st{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:7px 14px;font-size:12px;color:var(--color-text-secondary)}
+.st b{display:block;font-size:15px;font-weight:500;color:var(--color-text-primary)}
+.sb{height:3px;background:var(--color-border-tertiary);border-radius:2px;margin-bottom:1.2rem}
+.sf{height:100%;background:#534AB7;border-radius:2px;width:0;transition:width 0.4s}
+.search-row{display:flex;gap:8px;margin-bottom:1rem;align-items:center}
+.search-row input{flex:1;padding:8px 12px;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-secondary);background:var(--color-background-secondary);color:var(--color-text-primary);font-size:13px;font-family:var(--font-sans)}
+.cats{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:1.2rem}
+.pill{padding:4px 12px;border-radius:16px;border:0.5px solid var(--color-border-secondary);background:var(--color-background-secondary);color:var(--color-text-secondary);font-size:12px;cursor:pointer;white-space:nowrap}
+.pill.on{background:var(--color-background-primary);color:var(--color-text-primary);border-color:var(--color-border-primary);font-weight:500}
+.qcard{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);margin-bottom:10px;overflow:hidden}
+.qh{padding:13px 16px;display:flex;gap:10px;align-items:flex-start;cursor:pointer}
+.qh:hover{background:var(--color-background-secondary)}
+.qn{font-size:11px;font-weight:500;color:var(--color-text-tertiary);min-width:28px;padding-top:2px}
+.qr{flex:1;min-width:0}
+.tags{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:6px}
+.tag{font-size:10px;font-weight:500;padding:2px 8px;border-radius:8px}
+.tc{background:#E6F1FB;color:#0C447C}
+.tl1{background:#EAF3DE;color:#3B6D11}
+.tl2{background:#FAEEDA;color:#854F0B}
+.tl3{background:#FAECE7;color:#993C1D}
+.tl4{background:#EEEDFE;color:#3C3489}
+.tm{font-size:11px;padding:2px 7px;border-radius:6px;background:#FAEEDA;color:#854F0B}
+.qtext{font-size:13px;color:var(--color-text-primary);line-height:1.5;font-weight:500}
+.qtog{font-size:16px;color:var(--color-text-tertiary);padding-top:1px}
+.ans{display:none;padding:0 16px 14px 54px}
+.ans.open{display:block}
+.ans-box{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:13px 15px;font-size:13px;color:var(--color-text-secondary);line-height:1.75}
+.ans-box b{color:var(--color-text-primary);font-weight:500}
+.code{background:var(--color-background-tertiary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:10px 13px;font-family:var(--font-mono);font-size:11.5px;color:var(--color-text-primary);white-space:pre;overflow-x:auto;line-height:1.65;margin:10px 0}
+.tip{border-left:3px solid #534AB7;border-radius:0;background:#EEEDFE;padding:8px 11px;margin:10px 0;font-size:12px;color:#3C3489;line-height:1.5}
+.follow{margin-top:10px}
+.follow-label{font-size:11px;font-weight:500;color:var(--color-text-tertiary);margin-bottom:5px}
+.fq{display:inline-block;font-size:12px;background:var(--color-background-primary);border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);padding:4px 10px;margin:3px 3px 0 0;color:var(--color-text-secondary);cursor:pointer}
+.fq:hover{border-color:var(--color-border-primary);color:var(--color-text-primary)}
+.company-row{display:flex;gap:4px;flex-wrap:wrap;margin-top:8px}
+.co{font-size:10px;padding:2px 7px;border-radius:6px;background:var(--color-background-tertiary);color:var(--color-text-secondary);border:0.5px solid var(--color-border-tertiary)}
+.empty{padding:2rem;text-align:center;color:var(--color-text-tertiary);font-size:13px}
+.rbtn{margin-top:0.8rem;padding:6px 16px;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-secondary);background:var(--color-background-secondary);color:var(--color-text-primary);font-size:12px;cursor:pointer}
+</style>
+
+<div class="w">
+<h2 class="sr-only">Deep JavaScript theoretical interview questions — MAANG level, topic-wise</h2>
+
+<div class="top">
+  <div class="st"><b id="sTotal">0</b>Questions</div>
+  <div class="st"><b id="sOpen" style="color:#534AB7">0</b>Expanded</div>
+  <div class="st"><b id="sCat">All Topics</b>Viewing</div>
+</div>
+<div class="sb"><div class="sf" id="sbar"></div></div>
+
+<div class="search-row">
+  <input id="srch" placeholder="Search questions..." oninput="doSearch()" />
+  <button class="rbtn" onclick="document.getElementById('srch').value='';doSearch()"><i class="ti ti-x" aria-hidden="true"></i></button>
+</div>
+
+<div class="cats" id="catrow"></div>
+<div id="qlist"></div>
+</div>
+
+<script>
+const DATA = [
+ {cat:"Closures",level:1,companies:["Google","Meta","Amazon"],
+  q:"What exactly is a closure? How does it differ from a regular function?",
+  a:`A <b>closure</b> is a function bundled together with references to its surrounding lexical environment. It remembers the variables from the scope where it was created, even after that outer scope has exited the call stack.<br><br>A regular function only has access to its own local variables and globals. A closure additionally holds a live reference to every variable in every enclosing scope — this reference persists as long as the closure itself is reachable.`,
+  code:`function outer() {
+  let secret = 42;           // lives in outer's scope
+  return function inner() {
+    return secret;           // inner "closes over" secret
+  };
+}
+const fn = outer();          // outer's stack frame is gone
+fn();                        // 42 — secret still reachable via closure`,
+  tip:"Interviewers expect you to mention 'lexical environment', 'scope chain', and 'garbage collection' in one answer.",
+  follow:["How does the JS engine decide not to GC a closed-over variable?","Difference between closure and scope?"]},
+
+ {cat:"Closures",level:2,companies:["Flipkart","Atlassian","Uber"],
+  q:"Explain the closure scope chain. How does variable resolution work across multiple nested levels?",
+  a:`When a function needs a variable, the JS engine walks the <b>scope chain</b>: first the function's own local scope, then the immediately enclosing scope, then the next, all the way up to the global scope. The first match wins — this is called variable shadowing.<br><br>Each function object has an internal <b>[[Environment]]</b> slot pointing to the lexical environment where it was created. That environment has a reference to its parent, forming a chain.`,
+  code:`let x = 'global';
+function a() {
+  let x = 'a';
+  function b() {
+    let x = 'b';
+    function c() {
+      console.log(x); // 'b' — nearest enclosing x wins
+    }
+    c();
+  }
+  b();
+}
+a();`,
+  tip:"Draw the scope chain as linked boxes on a whiteboard — interviewers love visual thinkers.",
+  follow:["What is the [[Environment]] internal slot?","Can you break the scope chain?"]},
+
+ {cat:"Closures",level:3,companies:["Google","Netflix"],
+  q:"How do closures interact with the heap and garbage collector? When is a closed-over variable freed?",
+  a:`When a closure is created, any variables it references are moved from the stack frame to the <b>heap</b>. The garbage collector uses reachability: a closed-over variable stays alive as long as at least one closure referencing it is still reachable (e.g., referenced by a live variable, array, or event listener).<br><br>Once the last closure referencing that scope is GC'd or de-referenced, the entire environment record becomes unreachable and is eligible for collection. Modern V8 performs <b>escape analysis</b> — if a variable is captured by a closure that never actually reads it, V8 may omit putting it on the heap at all.`,
+  tip:"Mentioning V8 escape analysis shows senior-level depth. Also discuss WeakRef and WeakMap for explicit GC-friendly patterns.",
+  follow:["What is escape analysis in V8?","How does WeakRef help with closures and memory?"]},
+
+ {cat:"var vs let vs const",level:1,companies:["Amazon","Microsoft","Infosys"],
+  q:"Explain the difference between var, let, and const in terms of scope, hoisting, and the temporal dead zone.",
+  a:`<b>var</b>: function-scoped (or global if top-level). Hoisted and initialised to undefined. Can be re-declared. No TDZ.<br><br><b>let</b>: block-scoped. Hoisted but NOT initialised — accessing before declaration throws a ReferenceError (Temporal Dead Zone). Cannot be re-declared in same scope.<br><br><b>const</b>: same as let for scope and TDZ, but the binding cannot be reassigned after initialisation. The value itself can still be mutated (e.g. pushing to a const array).`,
+  code:`// TDZ demo
+console.log(a); // undefined (var hoisted+initialised)
+console.log(b); // ReferenceError (let in TDZ)
+var a = 1;
+let b = 2;
+
+// const mutation
+const arr = [1,2,3];
+arr.push(4);   // OK — array is mutated, not reassigned
+arr = [];      // TypeError — reassignment blocked`,
+  tip:"Always mention that const gives you an immutable BINDING, not an immutable VALUE. This trips up many candidates.",
+  follow:["Why was let/const introduced if var existed?","What is the TDZ (Temporal Dead Zone) internally?"]},
+
+ {cat:"var vs let vs const",level:2,companies:["Google","Meta"],
+  q:"Why does let create a new binding per loop iteration but var doesn't? What does the spec say?",
+  a:`The ECMAScript spec says that for <b>for loops with let</b>, a new lexical environment is created for each iteration — so each closure gets its own copy of the iteration variable. The engine also copies the variable's value from the previous iteration into the new environment.<br><br>For <b>var</b>, there is no per-iteration scope — all iterations share one binding in the containing function scope. Closures capture a reference to this single binding.`,
+  tip:"Referencing the ECMAScript spec (section 14.7.4) in an interview immediately signals deep preparation.",
+  follow:["Does for...of also create a new binding per iteration?","What about for...in with let?"]},
+
+ {cat:"var vs let vs const",level:3,companies:["Atlassian","Stripe"],
+  q:"Is it ever correct to use var in modern JavaScript? Give a real scenario.",
+  a:`In practice, almost never — but there are edge cases:<br><br>1. <b>Global intentional declarations</b>: var at the top level adds a property to the window object, which some legacy code relies on.<br><br>2. <b>Function-scoped flag patterns</b>: Rare cases where you explicitly want a variable to persist beyond a block inside a function.<br><br>3. <b>Legacy code maintenance</b>: Mixing var and let in the same codebase can introduce subtle bugs — sometimes consistency in old code is safer.<br><br>In modern code, <b>prefer const by default, let when reassignment is needed, and never var</b>.`,
+  tip:"This question tests judgment, not just knowledge. Show you understand WHY the rule exists, not just that the rule exists.",
+  follow:["What ESLint rules enforce no-var?","Does strict mode affect var behaviour?"]},
+
+ {cat:"IIFE & Module Pattern",level:1,companies:["Wipro","TCS","Cognizant"],
+  q:"What is an IIFE and why was it used extensively before ES modules?",
+  a:`An <b>IIFE (Immediately Invoked Function Expression)</b> is a function that is defined and executed in the same expression. It creates a private scope for its variables, preventing pollution of the outer/global scope.<br><br>Before ES modules (ES6), every script tag shared the global scope. IIFEs were the only reliable way to create module-like isolation — each library would wrap itself in an IIFE, exposing only what it chose to return.`,
+  code:`// Classic library pattern pre-ES6
+var MyLib = (function() {
+  var _private = 'secret';
+
+  function _helper() { return _private; }
+
+  return {
+    publicMethod: function() { return _helper(); }
+  };
+})();
+
+MyLib.publicMethod(); // 'secret'
+MyLib._private;       // undefined`,
+  tip:"Mention jQuery, Lodash, and early Angular — they all used this pattern. Shows historical context.",
+  follow:["How do ES modules differ from the IIFE module pattern?","Can you name the revealing module pattern?"]},
+
+ {cat:"IIFE & Module Pattern",level:2,companies:["Google","Meta","Adobe"],
+  q:"What is the Revealing Module Pattern? How does it improve on the basic Module Pattern?",
+  a:`The <b>Revealing Module Pattern</b> defines all functions privately, then explicitly maps which ones to expose in the return object. This gives a cleaner separation of concerns and a clear public API.<br><br>Advantage: all logic is defined in the same style (private functions), and the return object is just a clean map of names to references — easier to read and audit what's public.`,
+  code:`const UserModule = (function() {
+  let _users = [];
+
+  function _validate(user) {
+    return user && user.name;
+  }
+
+  function addUser(user) {
+    if (_validate(user)) _users.push(user);
+  }
+
+  function getUsers() { return [..._users]; }
+
+  // Reveal only what's needed
+  return { addUser, getUsers };
+})();`,
+  tip:"The key insight: in the basic module pattern, public methods are defined inside the return object. In RMP, everything is private and only references are revealed.",
+  follow:["What are the downsides of the module pattern vs ES modules?","How do you test private methods in the module pattern?"]},
+
+ {cat:"Memory Leaks",level:2,companies:["Netflix","Airbnb","Uber"],
+  q:"Name and explain at least 4 common causes of memory leaks in JavaScript.",
+  a:`<b>1. Forgotten event listeners</b>: Listeners added to DOM nodes or global objects (window, document) that are never removed. Each listener is a closure that may capture large objects.<br><br><b>2. Detached DOM nodes</b>: A node removed from the DOM but still referenced by a JS variable or closure — can't be GC'd.<br><br><b>3. Closures holding large scope</b>: A closure unintentionally captures a huge array/object in its scope even if it only uses a tiny part of it.<br><br><b>4. Global variable accumulation</b>: Variables accidentally created on window (missing var/let/const in sloppy mode) that grow unbounded.<br><br><b>5. SetInterval never cleared</b>: A setInterval callback that captures objects and is never cleared — runs forever, holding references.<br><br><b>6. Circular references</b>: Object A references B, B references A — old IE had issues with this; modern GC (mark-and-sweep) handles it.`,
+  tip:"Name the Chrome DevTools Memory panel and Heap Snapshot tool — it signals you've actually debugged this in production.",
+  follow:["How do you detect a memory leak using Chrome DevTools?","What is the difference between mark-and-sweep and reference counting GC?"]},
+
+ {cat:"Memory Leaks",level:3,companies:["Google","Facebook","Twitter"],
+  q:"How does the mark-and-sweep garbage collection algorithm work? Why does it handle circular references but reference counting doesn't?",
+  a:`<b>Reference counting</b>: Each object tracks how many references point to it. When count = 0, it's freed. Problem: if A references B and B references A, both have count ≥ 1 forever — they're never freed even if unreachable from the rest of the program.<br><br><b>Mark-and-sweep</b>: The GC starts from a set of "roots" (global object, call stack). It marks every object reachable from roots. In the sweep phase, anything not marked is freed. Circular references are handled correctly because A↔B, if both are unreachable from any root, neither gets marked and both get swept.`,
+  tip:"Modern V8 uses a generational GC (minor/major heap), incremental marking, and concurrent sweeping — mentioning this shows you understand production JS runtimes.",
+  follow:["What is generational garbage collection?","What are GC roots in the browser context?"]},
+
+ {cat:"Event Loop",level:1,companies:["Amazon","Flipkart","Walmart"],
+  q:"Explain the JavaScript event loop. What is the call stack, task queue, and microtask queue?",
+  a:`JavaScript is <b>single-threaded</b> — one call stack. The event loop coordinates asynchronous execution:<br><br><b>Call stack</b>: Synchronous code executes here, LIFO (last in, first out).<br><br><b>Task queue (macrotask queue)</b>: Holds callbacks from setTimeout, setInterval, I/O, UI events. Processed one at a time, one per event loop tick.<br><br><b>Microtask queue</b>: Holds Promise callbacks (.then/.catch), queueMicrotask(), MutationObserver. <b>Critically: ALL microtasks are drained before the next macrotask runs.</b><br><br>Order: sync code → drain all microtasks → one macrotask → drain all microtasks → next macrotask...`,
+  code:`console.log('1');               // sync
+setTimeout(() => console.log('2'), 0); // macrotask queue
+Promise.resolve().then(() => console.log('3')); // microtask queue
+console.log('4');               // sync
+
+// Output: 1, 4, 3, 2`,
+  tip:"The microtask-before-macrotask ordering is asked in nearly every MAANG JS interview. Memorise the order.",
+  follow:["What is a macrotask vs microtask?","Can microtasks starve the event loop?","Where does requestAnimationFrame fit?"]},
+
+ {cat:"Event Loop",level:2,companies:["Google","Meta","Apple"],
+  q:"Can microtasks starve the event loop? Give an example.",
+  a:`Yes. If microtasks continuously schedule new microtasks, the task queue never gets a chance to run — the UI freezes and I/O events are never processed.<br><br>This is because the event loop drains the entire microtask queue before moving to the next macrotask. If each microtask adds another microtask, the queue is never empty.`,
+  code:`// Infinite microtask loop — freezes the browser!
+function flood() {
+  Promise.resolve().then(flood);
+}
+flood();
+// No setTimeout, UI event, or I/O ever runs again`,
+  tip:"Contrast with setTimeout(fn, 0) — that goes to the macrotask queue, allowing other macrotasks to interleave.",
+  follow:["How does Node.js differ from the browser event loop?","What is process.nextTick in Node.js?"]},
+
+ {cat:"Event Loop",level:3,companies:["Netflix","Stripe","Shopify"],
+  q:"What is the difference between the browser event loop and Node.js event loop?",
+  a:`<b>Browser event loop</b>: Manages rendering, user events, network requests. Has microtask queue (Promises) and macrotask queue (setTimeout, events). Rendering happens between tasks.<br><br><b>Node.js event loop</b> (libuv): Has multiple phases: timers (setTimeout/setInterval) → pending callbacks → idle/prepare → poll (I/O) → check (setImmediate) → close callbacks.<br><br>Key differences:<br>- Node has <b>process.nextTick</b>: runs before other microtasks (highest priority).<br>- Node has <b>setImmediate</b>: runs in the check phase, after I/O.<br>- No rendering phase in Node.<br>- order: nextTick queue → Promise microtasks → timers → I/O → setImmediate`,
+  tip:"If interviewing for a backend Node.js role, the phases of the Node event loop (especially poll vs check) are frequently asked.",
+  follow:["When would you use setImmediate vs setTimeout(fn, 0) in Node?","What is the libuv thread pool?"]},
+
+ {cat:"Promises & Async/Await",level:1,companies:["Amazon","Infosys","HCL"],
+  q:"What is a Promise? What are its three states? How does Promise chaining work?",
+  a:`A <b>Promise</b> is an object representing the eventual completion or failure of an asynchronous operation. States:<br><br><b>Pending</b>: initial state, neither fulfilled nor rejected.<br><b>Fulfilled</b>: operation succeeded, value available via .then().<br><b>Rejected</b>: operation failed, reason available via .catch().<br><br>Once settled (fulfilled or rejected), a Promise is <b>immutable</b> — it can never change state again.<br><br><b>Chaining</b>: .then() always returns a new Promise, allowing sequential async operations without nested callbacks.`,
+  code:`fetch('/api/user')
+  .then(res => res.json())         // returns new Promise
+  .then(user => fetch('/api/posts?id=' + user.id))
+  .then(res => res.json())
+  .then(posts => console.log(posts))
+  .catch(err => console.error(err)); // catches ANY error above`,
+  tip:"Stress that .catch() at the end catches errors from ANY step in the chain — not just the last one. This surprises candidates.",
+  follow:["What is Promise.all vs Promise.allSettled vs Promise.race vs Promise.any?","Can a Promise be cancelled?"]},
+
+ {cat:"Promises & Async/Await",level:2,companies:["Google","Stripe","Twilio"],
+  q:"Explain Promise.all, Promise.allSettled, Promise.race, and Promise.any. When would you use each?",
+  a:`<b>Promise.all(arr)</b>: Resolves when ALL resolve. Rejects immediately if ANY rejects. Use for parallel operations where ALL must succeed.<br><br><b>Promise.allSettled(arr)</b>: Waits for ALL to settle (resolve or reject). Returns array of {status, value/reason}. Use when you want all results regardless of failures.<br><br><b>Promise.race(arr)</b>: Settles as soon as the FIRST promise settles (resolve OR reject). Use for timeout patterns.<br><br><b>Promise.any(arr)</b>: Resolves with the FIRST fulfillment. Only rejects if ALL reject (AggregateError). Use when any one success is enough.`,
+  code:`// Timeout pattern with Promise.race:
+function withTimeout(promise, ms) {
+  const timeout = new Promise((_, reject) =>
+    setTimeout(() => reject(new Error('Timeout')), ms)
+  );
+  return Promise.race([promise, timeout]);
+}`,
+  tip:"Promise.any is ES2021 — mentioning it shows you keep up with spec updates.",
+  follow:["How do you implement Promise.all from scratch?","What happens if you pass an empty array to Promise.all?"]},
+
+ {cat:"Promises & Async/Await",level:3,companies:["Meta","Google","Netflix"],
+  q:"What is the difference between async/await and Promises under the hood? Is async/await just syntactic sugar?",
+  a:`Yes — <b>async/await is syntactic sugar over Promises</b>. An async function always returns a Promise. await pauses the async function (not the thread!) until the awaited Promise settles, then resumes with the resolved value.<br><br>Under the hood, the JS engine transforms async/await into a state machine using generators. Each await point is a yield, and the runtime resumes the generator when the Promise resolves.<br><br>Key difference in error handling: with Promises you use .catch(); with async/await you use try/catch — but they're mechanically equivalent.`,
+  code:`// These are equivalent:
+function fetchUser() {
+  return fetch('/api/user').then(r => r.json());
+}
+
+async function fetchUser() {
+  const r = await fetch('/api/user');
+  return r.json(); // return value wrapped in Promise.resolve()
+}
+
+// Error handling:
+async function safe() {
+  try {
+    const data = await fetchUser();
+  } catch(e) {
+    console.error(e); // catches rejected Promise
+  }
+}`,
+  tip:"The generator/state machine explanation shows compiler-level understanding — very impressive to senior interviewers.",
+  follow:["What happens if you forget await?","Can you use await at top level?","What is async generator?"]},
+
+ {cat:"Prototype & Inheritance",level:1,companies:["TCS","Wipro","Accenture"],
+  q:"What is the prototype chain? How does JavaScript implement inheritance?",
+  a:`Every JavaScript object has an internal <b>[[Prototype]]</b> slot pointing to another object (or null). When you access a property, JS first checks the object itself, then walks up the prototype chain until it finds it or reaches null.<br><br>This is <b>prototypal inheritance</b> — objects inherit from other objects, not from classes. The class keyword (ES6) is syntactic sugar over this prototype-based system.`,
+  code:`const animal = {
+  breathe() { return 'breathing'; }
+};
+const dog = Object.create(animal); // dog's [[Prototype]] = animal
+dog.bark = function() { return 'woof'; };
+
+dog.bark();    // own property
+dog.breathe(); // found on prototype chain
+dog.hasOwnProperty('breathe'); // false`,
+  tip:"Object.create is the purest way to show prototypal inheritance without class syntax — use it in interviews to show depth.",
+  follow:["What is the difference between __proto__ and prototype?","How does Object.create differ from new?"]},
+
+ {cat:"Prototype & Inheritance",level:2,companies:["Google","Microsoft","Apple"],
+  q:"What is the difference between __proto__, prototype, and Object.getPrototypeOf()?",
+  a:`<b>prototype</b>: A property on <b>constructor functions/classes</b>. When you call new Foo(), the created object's [[Prototype]] is set to Foo.prototype. Only functions have a meaningful .prototype.<br><br><b>__proto__</b>: A non-standard (now legacy) getter/setter on object instances that exposes [[Prototype]]. Deprecated in favour of Object.getPrototypeOf().<br><br><b>Object.getPrototypeOf(obj)</b>: The official ES5+ way to read [[Prototype]] of any object. Use this in production code.`,
+  code:`function Dog(name) { this.name = name; }
+Dog.prototype.bark = function() { return 'woof'; };
+
+const d = new Dog('Rex');
+
+Object.getPrototypeOf(d) === Dog.prototype; // true
+d.__proto__ === Dog.prototype;              // true (legacy)
+d.hasOwnProperty('bark');                  // false — on prototype`,
+  tip:"Never use __proto__ in production — it's a legacy accessor. Always use Object.getPrototypeOf() and Object.setPrototypeOf().",
+  follow:["What does Object.create(null) give you?","Why is mutating prototype at runtime bad for performance?"]},
+
+ {cat:"Prototype & Inheritance",level:3,companies:["Meta","Netflix","Shopify"],
+  q:"How does class syntax compile down to prototype-based code? What does Babel do with a class?",
+  a:`A class is a constructor function with methods placed on its .prototype. Babel compiles:<br><br>- The constructor becomes a regular function.<br>- Class methods are added to Constructor.prototype via Object.defineProperty (non-enumerable).<br>- extends sets up the prototype chain: Child.prototype = Object.create(Parent.prototype) and Child.__proto__ = Parent (for static inheritance).<br>- super() in the constructor calls the parent constructor with the right context.`,
+  code:`// class syntax:
+class Animal {
+  constructor(name) { this.name = name; }
+  speak() { return this.name; }
+}
+class Dog extends Animal {
+  bark() { return super.speak() + ' barks'; }
+}
+
+// Rough Babel output:
+function Animal(name) { this.name = name; }
+Animal.prototype.speak = function() { return this.name; };
+
+function Dog() { Animal.apply(this, arguments); }
+Dog.prototype = Object.create(Animal.prototype);
+Dog.prototype.constructor = Dog;
+Dog.prototype.bark = function() {
+  return Animal.prototype.speak.call(this) + ' barks';
+};`,
+  tip:"Understanding what Babel produces is asked directly at Meta and Google. It shows you know JS, not just the syntax.",
+  follow:["Why are class methods non-enumerable but prototype methods added manually ARE enumerable?","What is the difference between super() and super.method()?"]},
+
+ {cat:"Debounce & Throttle",level:1,companies:["Flipkart","Amazon","Walmart"],
+  q:"What is debounce? What is throttle? When would you use each in a real product?",
+  a:`<b>Debounce</b>: Delays execution until after a specified time of inactivity. Fires once after the user stops. Use for: search input, form validation, window resize handlers where you only care about the final state.<br><br><b>Throttle</b>: Limits execution to at most once per time window, regardless of how many times it's triggered. Use for: scroll position tracking, mousemove, infinite scroll triggers, rate-limited API calls where you want regular updates.`,
+  tip:"Real-world examples score better than abstract definitions. Mention 'Google search suggestions' (debounce) and 'Twitter infinite scroll' (throttle).",
+  follow:["How would you implement debounce with a leading-edge option?","What is the difference between trailing and leading debounce?"]},
+
+ {cat:"Debounce & Throttle",level:2,companies:["Google","Uber","Airbnb"],
+  q:"Implement debounce with both leading and trailing options.",
+  a:`<b>Trailing</b> (default): fires after the wait period ends. <b>Leading</b>: fires immediately on first call, then ignores calls for the wait period. Many implementations support both via options.`,
+  code:`function debounce(fn, wait, { leading = false, trailing = true } = {}) {
+  let timer, lastResult;
+
+  return function(...args) {
+    const callNow = leading && !timer;
+
+    clearTimeout(timer);
+    timer = setTimeout(() => {
+      timer = null;
+      if (trailing && !callNow) {
+        lastResult = fn.apply(this, args);
+      }
+    }, wait);
+
+    if (callNow) lastResult = fn.apply(this, args);
+    return lastResult;
+  };
+}
+
+// Leading: fires immediately, then silent for 'wait' ms
+const search = debounce(callAPI, 300, { leading: true, trailing: false });
+// Trailing: fires once after 'wait' ms of silence
+const validate = debounce(callAPI, 300);`,
+  tip:"Lodash's _.debounce supports both — reading its source code is valuable interview prep.",
+  follow:["How would you add a cancel() method to debounce?","What is the maxWait option in lodash debounce?"]},
+
+ {cat:"Currying",level:1,companies:["Atlassian","Juspay","Razorpay"],
+  q:"What is currying? How is it different from partial application?",
+  a:`<b>Currying</b>: Transforms a function of N arguments into a sequence of N functions each taking one argument. f(a,b,c) becomes f(a)(b)(c).<br><br><b>Partial application</b>: Pre-fills some arguments of a function, returning a new function waiting for the remaining ones. Not necessarily one at a time.<br><br>Currying is a specific form of partial application where each step takes exactly one argument.`,
+  code:`// Currying (one arg at a time):
+const add = a => b => c => a + b + c;
+add(1)(2)(3); // 6
+
+// Partial application (multiple args at once):
+function partial(fn, ...preset) {
+  return (...rest) => fn(...preset, ...rest);
+}
+const add5and10 = partial((a,b,c) => a+b+c, 5, 10);
+add5and10(3); // 18`,
+  tip:"Mention that currying is heavily used in functional programming libraries like Ramda and Haskell-inspired JS code.",
+  follow:["Implement a generic curry() function that works for any arity.","What is point-free style and how does currying enable it?"]},
+
+ {cat:"Currying",level:3,companies:["Google","Stripe","Atlassian"],
+  q:"Implement a curry() function that handles variable arity and also supports placeholder arguments.",
+  a:`A full curry implementation that also supports <b>_</b> as a placeholder for skipping positional arguments — as seen in Ramda.`,
+  code:`const _ = Symbol('placeholder');
+
+function curry(fn) {
+  const arity = fn.length;
+
+  return function curried(...args) {
+    // Replace placeholders with new args
+    const filled = args.slice();
+    const pending = args.filter(a => a === _).length;
+
+    if (filled.length - pending >= arity) {
+      return fn(...filled.filter(a => a !== _));
+    }
+
+    return function(...more) {
+      const merged = filled.map(a => a === _ && more.length ? more.shift() : a);
+      return curried(...merged, ...more);
+    };
+  };
+}
+
+const add3 = curry((a,b,c) => a + b + c);
+add3(1)(2)(3);          // 6
+add3(1, 2)(3);          // 6
+const addTo10 = add3(_, _, 10); // placeholder
+addTo10(1)(2);          // 13`,
+  tip:"Placeholder support is a rare deep topic — mentioning Ramda's R.__ shows real functional programming exposure.",
+  follow:["What is transducer composition?","How does currying relate to function composition?"]},
+
+ {cat:"Stale Closures",level:1,companies:["Meta","Vercel","Netlify"],
+  q:"What is a stale closure in React? Why does it happen?",
+  a:`A <b>stale closure</b> is when a callback or effect in React captures a variable from its render scope at creation time, but that variable gets updated in subsequent renders — the closure continues to read the old, stale value.<br><br>This happens because React re-renders create a new function scope on each render. If you memoize a callback (useCallback, useEffect) with incorrect or missing dependencies, the memoized version holds the old closure.`,
+  code:`function Counter() {
+  const [count, setCount] = useState(0);
+
+  useEffect(() => {
+    // This effect captures count = 0 at mount.
+    // Even after 5 clicks, it always sees 0:
+    const id = setInterval(() => console.log(count), 1000);
+    return () => clearInterval(id);
+  }, []); // Stale! count not in deps
+
+  return <button onClick={() => setCount(c => c + 1)}>+</button>;
+}`,
+  tip:"The React team's recommendation: treat every value used in an effect as a dependency. The exhaustive-deps ESLint rule enforces this.",
+  follow:["How do you fix stale closures with useRef?","What is the functional update form of setState and when does it help?"]},
+
+ {cat:"Stale Closures",level:2,companies:["Meta","Vercel","Airbnb"],
+  q:"What are three strategies to fix stale closures in React hooks?",
+  a:`<b>1. Correct dependency array</b>: Add the stale variable to the deps array. Effect re-subscribes on change. Simple but may cause too-frequent re-subscriptions.<br><br><b>2. useRef for always-fresh value</b>: Store the value in a ref (ref.current = value on every render). The effect captures the ref object (stable), reads .current at call time — always fresh.<br><br><b>3. Functional setState</b>: When updating state that depends on previous state, use the callback form: setCount(c => c + 1). This reads the latest state from React's internals, not from the closure.`,
+  code:`// Strategy 2 — useRef pattern:
+function Timer() {
+  const [count, setCount] = useState(0);
+  const countRef = useRef(count);
+  countRef.current = count; // always updated
+
+  useEffect(() => {
+    const id = setInterval(() => {
+      console.log(countRef.current); // always fresh!
+    }, 1000);
+    return () => clearInterval(id);
+  }, []); // safe — ref object is stable
+}`,
+  tip:"The useRef pattern is the standard solution when you need a long-running subscription (WebSocket, setInterval) to always access fresh state.",
+  follow:["What is useEvent RFC and how does it relate to stale closures?","Can useReducer help avoid stale closures?"]},
+
+ {cat:"'this' Keyword",level:1,companies:["Amazon","Wipro","Cognizant"],
+  q:"Explain how 'this' is determined in JavaScript. What are the four rules?",
+  a:`<b>1. Default binding</b>: In a regular function call (not method), this = global object (window). In strict mode, this = undefined.<br><br><b>2. Implicit binding</b>: When called as a method (obj.fn()), this = obj — the object to the left of the dot.<br><br><b>3. Explicit binding</b>: Using .call(ctx), .apply(ctx), or .bind(ctx) — this = ctx.<br><br><b>4. new binding</b>: When called with new, this = newly created object.<br><br>Arrow functions have NO own this — they inherit this from the enclosing lexical scope at definition time.`,
+  code:`const obj = {
+  name: 'Alice',
+  greet() { console.log(this.name); },           // implicit
+  greetArrow: () => console.log(this.name),      // lexical (window.name)
+};
+obj.greet();         // 'Alice'
+obj.greetArrow();    // undefined (global this)
+
+const fn = obj.greet;
+fn();                // undefined (strict) or '' (window.name)
+fn.call({ name: 'Bob' }); // 'Bob' — explicit binding`,
+  tip:"The precedence order: new > explicit > implicit > default. This order itself is commonly asked.",
+  follow:["What happens to 'this' when you destructure a method?","How does bind differ from call/apply?"]},
+
+ {cat:"'this' Keyword",level:2,companies:["Google","Meta"],
+  q:"How do arrow functions handle 'this'? Why can't you use arrow functions as constructors or prototype methods?",
+  a:`Arrow functions <b>do not have their own 'this'</b>. They inherit this from the enclosing lexical scope at the time they are defined — not at call time. This is called <b>lexical this</b>.<br><br><b>Cannot be constructors</b>: Because they have no own this to assign to, using new with an arrow function throws a TypeError.<br><br><b>Avoid as prototype methods</b>: If you define a prototype method as an arrow function, this inside it refers to whatever this was in the enclosing scope (usually undefined or global), not the instance — defeating the purpose entirely.`,
+  code:`class Timer {
+  constructor() {
+    this.seconds = 0;
+    // Arrow captures 'this' (the Timer instance) at definition time:
+    setInterval(() => this.seconds++, 1000); // correct!
+
+    // Regular function would lose 'this':
+    // setInterval(function() { this.seconds++; }, 1000); // broken!
+  }
+}
+
+// Arrow as prototype method — WRONG:
+function Cat(name) { this.name = name; }
+Cat.prototype.speak = () => this.name; // 'this' is global here!
+new Cat('Whiskers').speak(); // undefined`,
+  tip:"The class constructor with setInterval example is a canonical real-world use case for arrow function's lexical this.",
+  follow:["Can you hard-bind an arrow function with .bind()?","What is the [[ThisMode]] internal slot?"]},
+
+ {cat:"Hoisting",level:1,companies:["Infosys","HCL","Capgemini"],
+  q:"What is hoisting? What gets hoisted and what doesn't?",
+  a:`<b>Hoisting</b>: During the compilation phase, JavaScript moves declarations to the top of their scope. The assignment stays in place — only the declaration is hoisted.<br><br><b>var</b>: Declaration hoisted and initialised to undefined.<br><b>function declarations</b>: Fully hoisted — both declaration AND body. Can be called before they appear in code.<br><b>let/const</b>: Declaration hoisted but NOT initialised (TDZ). Accessing before declaration = ReferenceError.<br><b>class declarations</b>: Hoisted but in TDZ — like let.<br><b>function expressions / arrow functions</b>: Only the variable declaration is hoisted (var = undefined), not the function.`,
+  code:`console.log(add(2,3));  // 5 — function declaration fully hoisted
+console.log(mul);       // undefined — var hoisted, not initialised
+console.log(div);       // ReferenceError — let in TDZ
+
+function add(a,b) { return a+b; }
+var mul = (a,b) => a*b;
+let div = (a,b) => a/b;`,
+  tip:"Class declarations are often forgotten in hoisting questions — mentioning that they're in TDZ (like let) impresses interviewers.",
+  follow:["What is the difference between function declaration and function expression hoisting?","Does hoisting happen in blocks?"]},
+
+ {cat:"Hoisting",level:2,companies:["Google","Amazon","Microsoft"],
+  q:"Why does hoisting exist? Is it a design feature or a bug?",
+  a:`Hoisting is a <b>consequence of the two-phase parsing model</b>: the JS engine first parses the entire script (creating declarations in the scope), then executes. Function hoisting was intentional — it allows you to organise code with helper functions at the bottom (as is common in C-style languages), calling them from the top.<br><br>var hoisting (initialised to undefined rather than throwing) is now widely considered a <b>design mistake</b>. It allows code to run without error on undeclared variables, creating subtle bugs. This is why let and const were introduced with TDZ semantics — failing loudly is better than silently reading undefined.`,
+  tip:"Showing awareness of design tradeoffs (intentional feature vs accidental complexity) signals senior-level thinking.",
+  follow:["How does the two-phase execution model work?","What is the creation phase vs execution phase?"]},
+
+ {cat:"Scope & Execution Context",level:1,companies:["Amazon","Flipkart","Paytm"],
+  q:"What is an execution context? What are its components?",
+  a:`An <b>execution context</b> is the internal environment created whenever code runs. It contains:<br><br><b>1. Variable Environment</b>: Stores var declarations and function declarations (hoisted).<br><b>2. Lexical Environment</b>: Stores let/const declarations. Has an outer reference pointing to the parent lexical environment (forming the scope chain).<br><b>3. this binding</b>: The value of this in this context.<br><br>Types of execution contexts: Global (one, always present), Function (created on each function call), Eval (rare).<br><br>They're managed by the <b>call stack</b> — the currently running context is at the top.`,
+  tip:"Drawing the call stack and lexical environment chain on a whiteboard is a must for this answer in an in-person interview.",
+  follow:["What is the difference between lexical environment and variable environment?","How many global execution contexts exist?"]},
+
+ {cat:"Scope & Execution Context",level:2,companies:["Google","Meta","Stripe"],
+  q:"What is the difference between lexical scope and dynamic scope? Which does JavaScript use?",
+  a:`<b>Lexical scope</b> (static scope): Variable lookup is determined by where the function is <b>written</b> in the source code. The scope chain is fixed at author time. JavaScript uses this.<br><br><b>Dynamic scope</b>: Variable lookup is determined by the <b>call stack</b> at runtime — variables are resolved based on who called the function, not where it was defined. Languages like Bash and some Lisp dialects use this.<br><br>The practical implication: in JS, you can always determine what variables a function will access just by reading the source code — you don't need to know how it will be called.`,
+  code:`let x = 'global';
+function getX() { return x; } // lexically scoped to global x
+
+function callGetX() {
+  let x = 'local';
+  return getX(); // still returns 'global' — lexical, not dynamic
+}
+callGetX(); // 'global'
+// In a dynamic scope language, this would return 'local'`,
+  tip:"The with statement in JS was an attempt to approximate dynamic scope — now forbidden in strict mode.",
+  follow:["What is the with statement and why was it deprecated?","What is eval and how does it affect scope?"]},
+
+ {cat:"Types & Coercion",level:1,companies:["Infosys","TCS","Accenture"],
+  q:"What is type coercion in JavaScript? What is the difference between == and ===?",
+  a:`<b>Type coercion</b>: JS automatically converts values from one type to another when needed (implicit coercion).<br><br><b>=== (strict equality)</b>: No coercion. Values must be the same type AND same value. Always use this.<br><br><b>== (abstract equality)</b>: Performs coercion per the Abstract Equality Comparison algorithm. Follows complex rules that are hard to predict.`,
+  code:`// == coercion surprises:
+0 == false   // true  (false coerced to 0)
+'' == false  // true
+null == undefined // true
+null == 0    // false (special case!)
+[] == false  // true
+[] == ![]    // true (both coerce to 0)
+
+// === — no surprises:
+0 === false  // false
+null === undefined // false`,
+  tip:"[] == ![] being true is the most famous coercion trap — walk through why: ![] = false, [] == false → [] → '' → 0, false → 0, 0==0=true.",
+  follow:["What are the rules of Abstract Equality Comparison?","What is the difference between falsy and nullish?"]},
+
+ {cat:"Types & Coercion",level:2,companies:["Google","Meta","Airbnb"],
+  q:"What are the 8 data types in JavaScript? What is the difference between primitive and object types?",
+  a:`<b>Primitives (7)</b>: undefined, null, boolean, number, bigint, string, symbol. Primitives are <b>immutable</b> and <b>stored by value</b>.<br><br><b>Object (1)</b>: Everything else — plain objects, arrays, functions, Date, Map, Set, etc. Objects are <b>mutable</b> and <b>stored by reference</b>.<br><br>Key implication: comparing two objects with === checks reference identity, not structural equality.`,
+  code:`// Primitive — by value:
+let a = 'hello';
+let b = a;
+b = 'world';
+console.log(a); // 'hello' — unchanged
+
+// Object — by reference:
+let obj1 = { x: 1 };
+let obj2 = obj1;     // same reference!
+obj2.x = 99;
+console.log(obj1.x); // 99 — shared!
+
+// typeof quirks:
+typeof null     // 'object' — historical bug!
+typeof function(){} // 'function'
+typeof []       // 'object'`,
+  tip:"typeof null = 'object' is a 25-year-old bug that can never be fixed for backwards compatibility. Always mention it.",
+  follow:["How do you deep clone an object?","What is Symbol and when would you use it?"]},
+
+ {cat:"Functions",level:1,companies:["Amazon","Wipro","Zoho"],
+  q:"What is the difference between function declaration, function expression, and arrow function?",
+  a:`<b>Function declaration</b>: Fully hoisted. Has its own this, arguments, prototype. Can be used as a constructor.<br><br><b>Function expression</b>: Not hoisted (only var container is, as undefined). Otherwise same capabilities as declaration.<br><br><b>Arrow function</b>: Not hoisted. No own this (lexical), no arguments object, no prototype. Cannot be a constructor. Ideal for callbacks and where lexical this is needed.`,
+  code:`// Declaration — hoisted:
+sayHi(); // works!
+function sayHi() { console.log('hi'); }
+
+// Expression — not hoisted:
+// sayBye(); // TypeError
+const sayBye = function() { console.log('bye'); };
+
+// Arrow — concise, lexical this:
+const double = x => x * 2;
+
+// No arguments object in arrow:
+const fn = () => arguments; // ReferenceError in strict mode`,
+  tip:"Interviewers often follow up with: 'When should you NOT use an arrow function?' Answer: object methods, constructors, prototype methods, functions needing their own this/arguments.",
+  follow:["What is the arguments object and how does it differ from rest parameters?","What is a named function expression and why use it?"]},
+
+ {cat:"Functions",level:2,companies:["Google","Meta","Stripe"],
+  q:"What are higher-order functions? Implement map, filter, and reduce from scratch.",
+  a:`A <b>higher-order function</b> is a function that takes a function as an argument and/or returns a function. They are the foundation of functional programming in JavaScript.`,
+  code:`// map — transforms each element:
+Array.prototype.myMap = function(fn) {
+  const result = [];
+  for (let i = 0; i < this.length; i++) {
+    result.push(fn(this[i], i, this));
+  }
+  return result;
+};
+
+// filter — keeps elements matching predicate:
+Array.prototype.myFilter = function(fn) {
+  const result = [];
+  for (let i = 0; i < this.length; i++) {
+    if (fn(this[i], i, this)) result.push(this[i]);
+  }
+  return result;
+};
+
+// reduce — accumulates a single value:
+Array.prototype.myReduce = function(fn, initial) {
+  let acc = initial !== undefined ? initial : this[0];
+  let start = initial !== undefined ? 0 : 1;
+  for (let i = start; i < this.length; i++) {
+    acc = fn(acc, this[i], i, this);
+  }
+  return acc;
+};
+
+[1,2,3].myMap(x => x * 2);         // [2,4,6]
+[1,2,3,4].myFilter(x => x % 2===0); // [2,4]
+[1,2,3,4].myReduce((a,b) => a+b);   // 10`,
+  tip:"Implementing reduce correctly (handling missing initial value and passing index/array) shows you know the spec, not just the concept.",
+  follow:["What is the difference between reduce and reduceRight?","Can you compose map and filter using reduce?"]},
+
+ {cat:"Error Handling",level:1,companies:["Amazon","Flipkart","Razorpay"],
+  q:"How does error handling work in synchronous vs asynchronous code in JavaScript?",
+  a:`<b>Synchronous</b>: Use try/catch/finally. Errors thrown inside the try block are caught immediately.<br><br><b>Promises</b>: Use .catch() or a second argument to .then(). Uncaught Promise rejections trigger unhandledRejection event.<br><br><b>async/await</b>: Wrap await calls in try/catch — rejected Promises surface as thrown errors.<br><br><b>Key difference</b>: try/catch does NOT catch asynchronous errors unless used with await.`,
+  code:`// Sync:
+try {
+  throw new Error('sync error');
+} catch(e) { console.log(e.message); }
+
+// Async — try/catch DOESN'T work here:
+try {
+  setTimeout(() => { throw new Error('async'); }, 0); // UNCAUGHT!
+} catch(e) { console.log('never runs'); }
+
+// Promise:
+Promise.reject(new Error('oops'))
+  .catch(e => console.log(e.message)); // works
+
+// async/await:
+async function run() {
+  try {
+    await Promise.reject(new Error('fail'));
+  } catch(e) { console.log(e.message); } // works
+}`,
+  tip:"The try/catch-around-setTimeout gotcha is asked at Amazon. Always test your error handling with async code.",
+  follow:["What is the unhandledRejection event?","What is Error.prototype.cause (ES2022)?"]},
+
+ {cat:"Generators & Iterators",level:2,companies:["Google","Netflix","Stripe"],
+  q:"What are generators? How do they relate to iterators and how are they used in practice?",
+  a:`A <b>generator function</b> (function*) returns a <b>generator object</b> that implements both the Iterator and Iterable protocols. Calling next() on it runs the function until the next yield, returning {value, done}.<br><br>Each yield <b>suspends</b> the function's execution context, preserving local variables. This makes generators powerful for: lazy sequences, custom iterators, implementing async/await (internally), and co-routine patterns.`,
+  code:`function* range(start, end, step = 1) {
+  for (let i = start; i < end; i += step) {
+    yield i;
+  }
+}
+
+for (const n of range(0, 10, 2)) {
+  console.log(n); // 0, 2, 4, 6, 8
+}
+
+// Infinite generator — only computes when needed:
+function* naturals() {
+  let n = 0;
+  while (true) yield n++;
+}
+const gen = naturals();
+gen.next().value; // 0
+gen.next().value; // 1
+
+// Two-way communication:
+function* adder() {
+  let total = 0;
+  while (true) {
+    const input = yield total;
+    total += input;
+  }
+}
+const a = adder();
+a.next();    // {value:0, done:false}
+a.next(5);   // {value:5, done:false}
+a.next(3);   // {value:8, done:false}`,
+  tip:"async/await is implemented using generators internally in the V8 engine. Explaining this link shows exceptional depth.",
+  follow:["What is yield* for?","How does return work inside a generator?","What is an async generator?"]},
+
+ {cat:"WeakMap & WeakSet",level:3,companies:["Google","Meta","Shopify"],
+  q:"What are WeakMap and WeakSet? How do their GC semantics differ from Map and Set?",
+  a:`<b>WeakMap</b>: Keys must be objects. The reference is <b>weak</b> — if the key object has no other references, it can be GC'd and the entry is automatically removed. No size property, not iterable.<br><br><b>WeakSet</b>: Only objects as members. Same weak semantics.<br><br><b>Why it matters</b>: Regular Map/Set hold strong references — keeping objects alive even if nothing else references them (memory leak risk). WeakMap/WeakSet allow the GC to reclaim objects when appropriate.<br><br><b>Use cases</b>: Private data per object instance, caching DOM node metadata, implementing private class fields before # syntax.`,
+  code:`// Private data pattern with WeakMap:
+const _private = new WeakMap();
+
+class Person {
+  constructor(name, age) {
+    _private.set(this, { age }); // private, GC'd with instance
+    this.name = name;
+  }
+  getAge() { return _private.get(this).age; }
+}
+
+const p = new Person('Alice', 30);
+p.getAge();   // 30
+p.age;        // undefined — truly private!
+// When p goes out of scope, _private entry is GC'd automatically`,
+  tip:"WeakRef (ES2021) and FinalizationRegistry are the newer tools in this space — mentioning them shows you follow the spec.",
+  follow:["When would you choose WeakMap over a regular Map?","What is FinalizationRegistry?"]},
+
+ {cat:"Symbols & Iterators",level:2,companies:["Google","Stripe","Cloudflare"],
+  q:"What are Symbols? What are well-known Symbols and how are they used?",
+  a:`A <b>Symbol</b> is a primitive type that creates a guaranteed unique value. Two calls to Symbol() always produce different values. Symbols are never auto-converted to strings — they must be explicitly converted.<br><br><b>Well-known Symbols</b> are built-in Symbols that let you customise built-in JS behaviour:<br>- Symbol.iterator: defines the default iterator for an object (enables for...of)<br>- Symbol.toPrimitive: customises type conversion<br>- Symbol.hasInstance: customises instanceof<br>- Symbol.toStringTag: customises Object.prototype.toString output`,
+  code:`// Custom iterable using Symbol.iterator:
+const range = {
+  from: 1, to: 5,
+  [Symbol.iterator]() {
+    let current = this.from;
+    const last = this.to;
+    return {
+      next() {
+        return current <= last
+          ? { value: current++, done: false }
+          : { value: undefined, done: true };
+      }
+    };
+  }
+};
+
+for (const n of range) console.log(n); // 1 2 3 4 5
+
+// Symbol as unique key — no collision:
+const id = Symbol('id');
+const obj = { [id]: 123, name: 'Alice' };
+Object.keys(obj);    // ['name'] — Symbol excluded!
+obj[id];             // 123`,
+  tip:"Symbols being excluded from Object.keys, JSON.stringify, and for...in is a key practical detail. Always mention it.",
+  follow:["What is Symbol.for() and the global Symbol registry?","Can symbols be used as WeakMap keys?"]},
+];
+
+let openSet = new Set();
+let activeCat = 'All';
+let searchTerm = '';
+
+function buildCats() {
+  const cats = ['All', ...new Set(DATA.map(q => q.cat))];
+  const row = document.getElementById('catrow');
+  cats.forEach((c,i) => {
+    const p = document.createElement('div');
+    p.className = 'pill' + (i===0?' on':'');
+    const count = c==='All' ? DATA.length : DATA.filter(q=>q.cat===c).length;
+    p.textContent = c + ' (' + count + ')';
+    p.onclick = () => {
+      activeCat = c;
+      document.querySelectorAll('.pill').forEach(x => x.classList.remove('on'));
+      p.classList.add('on');
+      document.getElementById('sCat').textContent = c==='All'?'All Topics':c;
+      render();
+    };
+    row.appendChild(p);
+  });
+}
+
+function doSearch() {
+  searchTerm = document.getElementById('srch').value.toLowerCase();
+  render();
+}
+
+function filtered() {
+  return DATA.filter((q,i) => {
+    const catMatch = activeCat==='All' || q.cat===activeCat;
+    const searchMatch = !searchTerm || q.q.toLowerCase().includes(searchTerm) || q.a.toLowerCase().includes(searchTerm) || q.cat.toLowerCase().includes(searchTerm);
+    return catMatch && searchMatch;
+  });
+}
+
+function lvlClass(l) {
+  return ['','tl1','tl2','tl3','tl4'][l]||'tl1';
+}
+function lvlLabel(l) {
+  return ['','Beginner','Intermediate','Advanced','Expert'][l]||'';
+}
+
+function render() {
+  const list = filtered();
+  const qlist = document.getElementById('qlist');
+  qlist.innerHTML = '';
+  document.getElementById('sTotal').textContent = list.length;
+  document.getElementById('sOpen').textContent = openSet.size;
+
+  if (!list.length) {
+    qlist.innerHTML = '<div class="empty">No questions match your search.</div>';
+    updateBar();
+    return;
+  }
+
+  list.forEach((q, idx) => {
+    const gi = DATA.indexOf(q);
+    const isOpen = openSet.has(gi);
+    const card = document.createElement('div');
+    card.className = 'qcard';
+
+    const coHtml = q.companies.map(c => `<span class="co">${c}</span>`).join('');
+    const codeHtml = q.code ? `<div class="code">${q.code.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</div>` : '';
+    const tipHtml = q.tip ? `<div class="tip">${q.tip}</div>` : '';
+    const followHtml = q.follow ? `<div class="follow"><div class="follow-label">Follow-up questions</div>${q.follow.map(f=>`<span class="fq" onclick="sendPrompt('${f.replace(/'/g,"")}')">${f} ↗</span>`).join('')}</div>` : '';
+
+    card.innerHTML = `
+      <div class="qh" onclick="toggle(${gi})">
+        <span class="qn">Q${idx+1}</span>
+        <div class="qr">
+          <div class="tags">
+            <span class="tag tc">${q.cat}</span>
+            <span class="tag ${lvlClass(q.level)}">${lvlLabel(q.level)}</span>
+          </div>
+          <div class="qtext">${q.q}</div>
+          <div class="company-row">${coHtml}</div>
+        </div>
+        <span class="qtog">${isOpen?'−':'+'}</span>
+      </div>
+      <div class="ans${isOpen?' open':''}" id="ans-${gi}">
+        <div class="ans-box">
+          ${q.a}
+          ${codeHtml}
+          ${tipHtml}
+          ${followHtml}
+        </div>
+      </div>`;
+    qlist.appendChild(card);
+  });
+  updateBar();
+}
+
+function toggle(gi) {
+  if (openSet.has(gi)) openSet.delete(gi); else openSet.add(gi);
+  render();
+}
+
+function updateBar() {
+  const list = filtered();
+  const pct = list.length ? (openSet.size / list.length * 100) : 0;
+  document.getElementById('sbar').style.width = Math.min(pct, 100) + '%';
+}
+
+buildCats();
+render();
+</script>

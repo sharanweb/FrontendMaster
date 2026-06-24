@@ -1,0 +1,60 @@
+{
+  "topic": "debounce-throttle",
+  "questions": [
+    {
+      "id": "debounce-001",
+      "type": "theory",
+      "level": 1,
+      "question": "What is debounce? What is throttle? When would you use each in a real product?",
+      "answer": "<b>Debounce</b>: Delays execution until after a specified time of inactivity. Fires once after the user stops. Use for: search input, form validation, window resize handlers where you only care about the final state.<br><br><b>Throttle</b>: Limits execution to at most once per time window, regardless of how many times it's triggered. Use for: scroll position tracking, mousemove, infinite scroll triggers, rate-limited API calls where you want regular updates.",
+      "code": "",
+      "tip": "Real-world examples score better than abstract definitions. Mention 'Google search suggestions' (debounce) and 'Twitter infinite scroll' (throttle).",
+      "followUps": ["How would you implement debounce with a leading-edge option?", "What is the difference between trailing and leading debounce?"],
+      "companies": ["Flipkart", "Amazon", "Walmart"]
+    },
+    {
+      "id": "debounce-002",
+      "type": "implementation",
+      "level": 2,
+      "question": "Implement debounce with both leading and trailing options.",
+      "answer": "<b>Trailing</b> (default): fires after the wait period ends. <b>Leading</b>: fires immediately on first call, then ignores calls for the wait period. Many implementations support both via options.",
+      "code": "function debounce(fn, wait, { leading = false, trailing = true } = {}) {\n  let timer, lastResult;\n\n  return function(...args) {\n    const callNow = leading && !timer;\n\n    clearTimeout(timer);\n    timer = setTimeout(() => {\n      timer = null;\n      if (trailing && !callNow) {\n        lastResult = fn.apply(this, args);\n      }\n    }, wait);\n\n    if (callNow) lastResult = fn.apply(this, args);\n    return lastResult;\n  };\n}\n\n// Leading: fires immediately, then silent for 'wait' ms\nconst search = debounce(callAPI, 300, { leading: true, trailing: false });\n// Trailing: fires once after 'wait' ms of silence\nconst validate = debounce(callAPI, 300);",
+      "tip": "Lodash's _.debounce supports both — reading its source code is valuable interview prep.",
+      "followUps": ["How would you add a cancel() method to debounce?", "What is the maxWait option in lodash debounce?"],
+      "companies": ["Google", "Uber", "Airbnb"]
+    },
+    {
+      "id": "debounce-003",
+      "type": "quiz",
+      "difficulty": "medium",
+      "title": "Debounce — how many API calls?",
+      "code": "// debounce fires fn only after 'delay' ms of silence\nconst search = debounce(callAPI, 300);\n\n// User types rapidly:\nsearch('a');   // t=0ms\nsearch('ap');  // t=50ms\nsearch('app'); // t=100ms\n// No more calls after t=100ms\n\n// How many times does callAPI fire?",
+      "options": ["3", "2", "1", "0"],
+      "answer": 2,
+      "explanation": "<b>Answer: 1 time</b><br>Each call to search() resets the timer. 'a' at t=0 — timer set for t=300. 'ap' at t=50 — timer reset for t=350. 'app' at t=100 — timer reset for t=400. After t=400ms with no new calls, callAPI fires once with 'app'. This is the debounce contract: fire only after the user stops.",
+      "concept": "Debounce — fires once after silence"
+    },
+    {
+      "id": "debounce-004",
+      "type": "quiz",
+      "difficulty": "hard",
+      "title": "Throttle — how many API calls?",
+      "code": "// throttle fires fn at most once per 'limit' ms\nconst onScroll = throttle(logPos, 200);\n\n// Scroll events fire at:\n// t=0, t=50, t=100, t=150, t=200, t=250\n\n// How many times does logPos fire?",
+      "options": ["1", "2", "3", "6"],
+      "answer": 2,
+      "explanation": "<b>Answer: ~2-3 times (depends on implementation)</b><br>With leading-edge throttle: t=0 fires (next allowed: t=200). t=50,100,150 are dropped. t=200 fires (next allowed: t=400). t=250 is dropped. The key insight: it's far fewer than 6. Throttle rate-limits to max 1 per window.",
+      "concept": "Throttle — rate limits to max 1 per window"
+    },
+    {
+      "id": "debounce-005",
+      "type": "quiz",
+      "difficulty": "tricky",
+      "title": "Debounce — closure variable check",
+      "code": "function debounce(fn, delay) {\n  let timer;\n  return function(...args) {\n    clearTimeout(timer);\n    timer = setTimeout(() => fn(...args), delay);\n  };\n}\nconst d = debounce((x) => console.log(x), 100);\nd(1); d(2); d(3);",
+      "options": ["1  2  3", "3", "1", "Nothing prints"],
+      "answer": 1,
+      "explanation": "<b>Output: 3 (after 100ms)</b><br>d(1) sets timer → cleared by d(2) → cleared by d(3). Only the last setTimeout survives. After 100ms of silence, fn(3) runs. timer is the closed-over variable that persists across all three calls — that's the mechanism that makes debounce work.",
+      "concept": "timer closed over — only last call fires"
+    }
+  ]
+}
